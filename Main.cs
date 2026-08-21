@@ -35,7 +35,7 @@ namespace Tutorial
             var options = WindowOptions.Default;
             options.Size = new Vector2D<int>(800, 600);
             options.Title = "LearnOpenGL with Silk.NET";
-            options.WindowState = WindowState.Maximized | WindowState.Fullscreen;
+            options.WindowState = WindowState.Normal;
 
             window = Window.Create(options);
             window.Load += OnLoad;
