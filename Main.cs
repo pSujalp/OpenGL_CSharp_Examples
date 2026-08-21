@@ -20,17 +20,61 @@ namespace Tutorial
         public static Texture Texture;
         private static Shader Shader;
         
-        private static readonly float[] Vertices = {
-        // positions         // colors
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top 
-    };
+        private static readonly float[] Vertices =
+        {
+            //X    Y      Z     U   V
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        };
+
 
 
         private static readonly uint[] Indices ={0, 1, 2};
 
-        private static Transform[] Transforms = new Transform[4];
+        private static Vector3 CameraPosition = new Vector3(0.0f, 0.0f, 3.0f);
+        private static Vector3 CameraTarget = Vector3.Zero;
+        private static Vector3 CameraDirection = Vector3.Normalize(CameraPosition - CameraTarget);
+        private static Vector3 CameraRight = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, CameraDirection));
+        private static Vector3 CameraUp = Vector3.Cross(CameraDirection, CameraRight);
 
 
         private static void Main(string[] args)
@@ -63,43 +107,37 @@ namespace Tutorial
             Ebo = new BufferObject<uint>(Gl, Indices, BufferTargetARB.ElementArrayBuffer);
             Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
             Vao = new VertexArrayObject<float, uint>(Gl, Vbo, Ebo);
-            Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 6, 0);
-            Vao.VertexAttributePointer(1, 3, VertexAttribPointerType.Float, 6, 3);
+            Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
+            Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
 
-
-            Transforms[0] = new Transform();
-            Transforms[0].Position = new Vector3(0.5f, 0.5f, 0f);
-            //Rotation.
-            Transforms[1] = new Transform();
-            Transforms[1].Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 1f);
-            //Scaling.
-            Transforms[2] = new Transform();
-            Transforms[2].Scale = 0.5f;
-            //Mixed transformation.
-            Transforms[3] = new Transform();
-            Transforms[3].Position = new Vector3(-0.5f, 0.5f, 0f);
-            Transforms[3].Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 1f);
-            Transforms[3].Scale = 0.5f;
+            Texture = new Texture(Gl,"assets/Grass_Block_TEX1.png");
             
         }
 
         private static unsafe void OnRender(double obj)
         {
-            Gl.Clear((uint)ClearBufferMask.ColorBufferBit);
+            Gl.Enable(EnableCap.DepthTest);
+            Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+
             Vao.Bind();
+            Texture.Bind();
             Shader.Use();
+            Shader.SetUniform("uTexture0", 0);
+            var difference = (float) (window.Time * 100);
 
+            var size = window.FramebufferSize;
 
+            var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
+            var view = Matrix4x4.CreateLookAt(CameraPosition, CameraTarget, CameraUp);
+            var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), (float)size.X / size.Y, 0.1f, 100.0f);
 
-            for (int i = 0; i < Transforms.Length; i++)
-            {
-                //Using the transformations.
-                Shader.SetUniform("uModel", Transforms[i].ViewMatrix);
+            Shader.SetUniform("uModel", model);
+            Shader.SetUniform("uView", view);
+            Shader.SetUniform("uProjection", projection);
 
-                Gl.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt, null);
-            }
-
+            //We're drawing with just vertices and no indicies, and it takes 36 verticies to have a six-sided textured cube
+            Gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
            
            
         }
@@ -116,6 +154,7 @@ namespace Tutorial
             Ebo.Dispose();
             Vao.Dispose();
             Shader.Dispose();
+            Texture.Dispose();
           
         }
 

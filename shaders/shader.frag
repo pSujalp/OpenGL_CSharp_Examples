@@ -1,13 +1,14 @@
-//Specifying the version like in our vertex shader.
 #version 330 core
 out vec4 FragColor;
 
-in vec3 outColor;
 
+uniform sampler2D uTexture0;
+
+
+in vec2 fUv;
 
 
 void main()
 {
-   
-    FragColor =  vec4(outColor,1.0f) ;
+    FragColor = texture(uTexture0, fUv);
 }
