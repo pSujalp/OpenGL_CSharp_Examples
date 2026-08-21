@@ -18,7 +18,7 @@ namespace Tutorial
 
         public static Texture Texture;
         private static Shader Shader;
-
+        
         private static readonly float[] Vertices = {
         // positions         // colors
          0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
