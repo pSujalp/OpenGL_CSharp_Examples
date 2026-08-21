@@ -10,24 +10,26 @@ namespace Tutorial
     {
         private static IWindow window;
         private static GL Gl;
-
-
         private static BufferObject<float> Vbo;
         private static BufferObject<uint> Ebo;
         private static VertexArrayObject<float, uint> Vao;
-
         public static Texture Texture;
+
         private static Shader Shader;
 
         private static readonly float[] Vertices = {
-        // positions         // colors
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top 
+
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
     };
 
 
-        private static readonly uint[] Indices ={0, 1, 2};
+        private static readonly uint[] Indices = {
+        0, 1, 3,
+        1, 2, 3
+    };
 
 
         private static void Main(string[] args)
@@ -60,19 +62,23 @@ namespace Tutorial
             Ebo = new BufferObject<uint>(Gl, Indices, BufferTargetARB.ElementArrayBuffer);
             Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
             Vao = new VertexArrayObject<float, uint>(Gl, Vbo, Ebo);
-            Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 6, 0);
-            Vao.VertexAttributePointer(1, 3, VertexAttribPointerType.Float, 6, 3);
+            Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 8, 0);
+            Vao.VertexAttributePointer(1, 3, VertexAttribPointerType.Float, 8, 3);
+            Vao.VertexAttributePointer(2, 2, VertexAttribPointerType.Float, 8, 6);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            
+            Texture = new Texture(Gl, "assets/container.jpg");
         }
+
 
         private static unsafe void OnRender(double obj)
         {
             Gl.Clear((uint)ClearBufferMask.ColorBufferBit);
             Vao.Bind();
             Shader.Use();
+            Texture.Bind(TextureUnit.Texture0);
+            Shader.SetUniform("uTexture", 0);
 
-           
+            
             Gl.DrawElements(PrimitiveType.Triangles, (uint)Indices.Length, DrawElementsType.UnsignedInt, null);
         }
 
@@ -88,7 +94,8 @@ namespace Tutorial
             Ebo.Dispose();
             Vao.Dispose();
             Shader.Dispose();
-          
+            Texture.Dispose();
+
         }
 
         private static void KeyDown(IKeyboard arg1, Key arg2, int arg3)
