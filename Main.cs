@@ -57,8 +57,6 @@ namespace Tutorial
                 input.Keyboards[i].KeyDown += KeyDown;
             }
             Gl = GL.GetApi(window);
-
-
             Ebo = new BufferObject<uint>(Gl, Indices, BufferTargetARB.ElementArrayBuffer);
             Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
             Vao = new VertexArrayObject<float, uint>(Gl, Vbo, Ebo);
@@ -76,9 +74,7 @@ namespace Tutorial
             Vao.Bind();
             Shader.Use();
             Texture.Bind(TextureUnit.Texture0);
-            Shader.SetUniform("uTexture", 0);
-
-            
+            Shader.SetUniform("uTexture", 0);            
             Gl.DrawElements(PrimitiveType.Triangles, (uint)Indices.Length, DrawElementsType.UnsignedInt, null);
         }
 
