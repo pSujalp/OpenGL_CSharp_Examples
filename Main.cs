@@ -1,8 +1,9 @@
 using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
-using System;
+using System.Numerics;
 using Silk.NET.Maths;
+
 
 namespace Tutorial
 {
@@ -28,6 +29,8 @@ namespace Tutorial
 
 
         private static readonly uint[] Indices ={0, 1, 2};
+
+        private static Transform[] Transforms = new Transform[4];
 
 
         private static void Main(string[] args)
@@ -63,6 +66,21 @@ namespace Tutorial
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 6, 0);
             Vao.VertexAttributePointer(1, 3, VertexAttribPointerType.Float, 6, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
+
+
+            Transforms[0] = new Transform();
+            Transforms[0].Position = new Vector3(0.5f, 0.5f, 0f);
+            //Rotation.
+            Transforms[1] = new Transform();
+            Transforms[1].Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 1f);
+            //Scaling.
+            Transforms[2] = new Transform();
+            Transforms[2].Scale = 0.5f;
+            //Mixed transformation.
+            Transforms[3] = new Transform();
+            Transforms[3].Position = new Vector3(-0.5f, 0.5f, 0f);
+            Transforms[3].Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 1f);
+            Transforms[3].Scale = 0.5f;
             
         }
 
@@ -72,8 +90,18 @@ namespace Tutorial
             Vao.Bind();
             Shader.Use();
 
+
+
+            for (int i = 0; i < Transforms.Length; i++)
+            {
+                //Using the transformations.
+                Shader.SetUniform("uModel", Transforms[i].ViewMatrix);
+
+                Gl.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt, null);
+            }
+
            
-            Gl.DrawElements(PrimitiveType.Triangles, (uint)Indices.Length, DrawElementsType.UnsignedInt, null);
+           
         }
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
