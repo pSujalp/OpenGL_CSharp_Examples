@@ -14,7 +14,6 @@ namespace Tutorial
         private static BufferObject<uint> Ebo;
         private static VertexArrayObject<float, uint> Vao;
         public static Texture Texture;
-
         private static Shader Shader;
 
         private static readonly float[] Vertices = {
@@ -37,7 +36,7 @@ namespace Tutorial
             var options = WindowOptions.Default;
             options.Size = new Vector2D<int>(800, 600);
             options.Title = "LearnOpenGL with Silk.NET";
-            options.WindowState = WindowState.Maximized | WindowState.Fullscreen;
+            options.WindowState = WindowState.Normal;
 
             window = Window.Create(options);
             window.Load += OnLoad;
@@ -74,7 +73,9 @@ namespace Tutorial
             Vao.Bind();
             Shader.Use();
             Texture.Bind(TextureUnit.Texture0);
-            Shader.SetUniform("uTexture", 0);            
+            Shader.SetUniform("uTexture", 0);      
+
+
             Gl.DrawElements(PrimitiveType.Triangles, (uint)Indices.Length, DrawElementsType.UnsignedInt, null);
         }
 
