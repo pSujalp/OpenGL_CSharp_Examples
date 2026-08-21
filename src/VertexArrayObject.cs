@@ -24,6 +24,17 @@ namespace Tutorial
             vbo.Bind();
             ebo.Bind();
         }
+        public VertexArrayObject(GL gl, BufferObject<TVertexType> vbo)
+        {
+            //Saving the GL instance.
+            _gl = gl;
+
+            //Setting out handle and binding the VBO and EBO to this VAO.
+            _handle = _gl.GenVertexArray();
+            Bind();
+            vbo.Bind();
+            // ebo.Bind();
+        }
 
         public unsafe void VertexAttributePointer(uint index, int count, VertexAttribPointerType type, uint vertexSize, int offSet)
         {
