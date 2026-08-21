@@ -33,7 +33,6 @@ namespace Tutorial
             _handle = _gl.GenVertexArray();
             Bind();
             vbo.Bind();
-            // ebo.Bind();
         }
 
         public unsafe void VertexAttributePointer(uint index, int count, VertexAttribPointerType type, uint vertexSize, int offSet)

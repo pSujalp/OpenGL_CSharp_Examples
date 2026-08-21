@@ -17,7 +17,6 @@ namespace Tutorial
 
 
         private static BufferObject<float> Vbo;
-        private static BufferObject<uint> Ebo;
         private static VertexArrayObject<float, uint> Vao;
 
         public static Texture Texture;
@@ -108,7 +107,6 @@ namespace Tutorial
             }
 
             Gl = GL.GetApi(window);
-            // Ebo = new BufferObject<uint>(Gl, Indices, BufferTargetARB.ElementArrayBuffer);
             Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
             Vao = new VertexArrayObject<float, uint>(Gl, Vbo);
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
@@ -180,16 +178,10 @@ namespace Tutorial
         private static void OnClose()
         {
             Vbo.Dispose();
-            Ebo.Dispose();
             Vao.Dispose();
             Shader.Dispose();
             Texture.Dispose();
         }
-
-       
-
-       
-
 
         private static void KeyDown(IKeyboard arg1, Key arg2, int arg3)
         {
