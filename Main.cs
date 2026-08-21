@@ -10,6 +10,8 @@ namespace Tutorial
     class Program
     {
         private static IWindow window;
+
+        private static IKeyboard primaryKeyboard;
         private static GL Gl;
 
 
@@ -70,11 +72,15 @@ namespace Tutorial
 
         private static readonly uint[] Indices ={0, 1, 2};
 
+
         private static Vector3 CameraPosition = new Vector3(0.0f, 0.0f, 3.0f);
-        private static Vector3 CameraTarget = Vector3.Zero;
-        private static Vector3 CameraDirection = Vector3.Normalize(CameraPosition - CameraTarget);
-        private static Vector3 CameraRight = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, CameraDirection));
-        private static Vector3 CameraUp = Vector3.Cross(CameraDirection, CameraRight);
+        private static Vector3 CameraFront = new Vector3(0.0f, 0.0f, -1.0f);
+        private static Vector3 CameraUp = Vector3.UnitY;
+        private static Vector3 CameraDirection = Vector3.Zero;
+        private static float CameraYaw = -90f;
+        private static float CameraPitch = 0f;
+        private static float CameraZoom = 45f;
+        private static Vector2 LastMousePosition;
 
 
         private static void Main(string[] args)
@@ -96,10 +102,18 @@ namespace Tutorial
 
         private static void OnLoad()
         {
+
             IInputContext input = window.CreateInput();
-            for (int i = 0; i < input.Keyboards.Count; i++)
+            primaryKeyboard = input.Keyboards.FirstOrDefault();
+            if (primaryKeyboard != null)
             {
-                input.Keyboards[i].KeyDown += KeyDown;
+                primaryKeyboard.KeyDown += KeyDown;
+            }
+            for (int i = 0; i < input.Mice.Count; i++)
+            {
+                input.Mice[i].Cursor.CursorMode = CursorMode.Raw;
+                input.Mice[i].MouseMove += OnMouseMove;
+                input.Mice[i].Scroll += OnMouseWheel;
             }
             Gl = GL.GetApi(window);
 
@@ -110,7 +124,6 @@ namespace Tutorial
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
             Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-
             Texture = new Texture(Gl,"assets/Grass_Block_TEX1.png");
             
         }
@@ -128,18 +141,17 @@ namespace Tutorial
 
             var size = window.FramebufferSize;
 
+
             var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
-            var view = Matrix4x4.CreateLookAt(CameraPosition, CameraTarget, CameraUp);
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), (float)size.X / size.Y, 0.1f, 100.0f);
+            var view = Matrix4x4.CreateLookAt(CameraPosition, CameraPosition + CameraFront, CameraUp);
+            var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CameraZoom), (float)size.X / size.Y, 0.1f, 100.0f);
 
             Shader.SetUniform("uModel", model);
             Shader.SetUniform("uView", view);
             Shader.SetUniform("uProjection", projection);
 
-            //We're drawing with just vertices and no indicies, and it takes 36 verticies to have a six-sided textured cube
+
             Gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
-           
-           
         }
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
@@ -149,14 +161,42 @@ namespace Tutorial
 
         private static void OnClose()
         {
-
             Vbo.Dispose();
             Ebo.Dispose();
             Vao.Dispose();
             Shader.Dispose();
             Texture.Dispose();
-          
         }
+
+        private static unsafe void OnMouseMove(IMouse mouse, Vector2 position)
+        {
+            var lookSensitivity = 0.1f;
+            if (LastMousePosition == default) { LastMousePosition = position; }
+            else
+            {
+                var xOffset = (position.X - LastMousePosition.X) * lookSensitivity;
+                var yOffset = (position.Y - LastMousePosition.Y) * lookSensitivity;
+                LastMousePosition = position;
+
+                CameraYaw += xOffset;
+                CameraPitch -= yOffset;
+
+                //We don't want to be able to look behind us by going over our head or under our feet so make sure it stays within these bounds
+                CameraPitch = Math.Clamp(CameraPitch, -89.0f, 89.0f);
+
+                CameraDirection.X = MathF.Cos(MathHelper.DegreesToRadians(CameraYaw)) * MathF.Cos(MathHelper.DegreesToRadians(CameraPitch));
+                CameraDirection.Y = MathF.Sin(MathHelper.DegreesToRadians(CameraPitch));
+                CameraDirection.Z = MathF.Sin(MathHelper.DegreesToRadians(CameraYaw)) * MathF.Cos(MathHelper.DegreesToRadians(CameraPitch));
+                CameraFront = Vector3.Normalize(CameraDirection);
+            }
+        }
+
+        private static unsafe void OnMouseWheel(IMouse mouse, ScrollWheel scrollWheel)
+        {
+            //We don't want to be able to zoom in too close or too far away so clamp to these values
+            CameraZoom = Math.Clamp(CameraZoom - scrollWheel.Y, 1.0f, 45f);
+        }
+
 
         private static void KeyDown(IKeyboard arg1, Key arg2, int arg3)
         {
