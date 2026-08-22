@@ -1,12 +1,9 @@
 #version 330 core
-out vec4 FragColor;
-
+in vec2 fUv;
 
 uniform sampler2D uTexture0;
 
-
-in vec2 fUv;
-
+out vec4 FragColor;
 
 void main()
 {

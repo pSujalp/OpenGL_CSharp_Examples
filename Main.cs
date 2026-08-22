@@ -21,6 +21,8 @@ namespace Tutorial
 
         public static Texture Texture;
         private static Shader Shader;
+
+        private static Model Model;
         
         private static readonly float[] Vertices =
         {
@@ -113,6 +115,7 @@ namespace Tutorial
             Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
             Texture = new Texture(Gl,"assets/Grass_Block_TEX1.png");
+            Model = new Model(Gl, "assets/cube.model");
 
             
             
@@ -167,7 +170,18 @@ namespace Tutorial
             Shader.SetUniform("uProjection", projection);
 
 
-            Gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
+            foreach (var mesh in Model.Meshes)
+            {
+                mesh.Bind();
+                Shader.Use();
+                Texture.Bind();
+                Shader.SetUniform("uTexture0", 0);
+                Shader.SetUniform("uModel", model);
+                Shader.SetUniform("uView", view);
+                Shader.SetUniform("uProjection", projection);
+
+                Gl.DrawElements(PrimitiveType.Triangles, (uint) mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
+            }
         }
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
