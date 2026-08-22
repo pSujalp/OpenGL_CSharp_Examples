@@ -79,6 +79,8 @@ namespace Tutorial
 
         private static Camera camera;
 
+        private static bool _checked = false;
+
 
         private static void Main(string[] args)
         {
@@ -86,6 +88,11 @@ namespace Tutorial
             options.Size = new Vector2D<int>(800, 600);
             options.Title = "LearnOpenGL with Silk.NET";
             options.WindowState = WindowState.Normal;
+            options.API = new GraphicsAPI(ContextAPI.OpenGL,ContextProfile.Core,
+                              ContextFlags.ForwardCompatible,   new APIVersion(3, 3));
+options.PreferredDepthBufferBits = 24;
+            options.PreferredStencilBufferBits =8;
+            options.Samples = 16;
 
             window = Window.Create(options);
             window.Load += OnLoad;
@@ -116,8 +123,10 @@ namespace Tutorial
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
             Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/Grass_Block_TEX1.png");
-            Model = new Model(Gl, "assets/cube.model");
+            Texture = new Texture(Gl, "assets/bullet.png");
+            Model = new Model(Gl, "assets/Bullet_45_ACP.fbx");
+
+            
 
 
 
@@ -151,6 +160,10 @@ namespace Tutorial
 
         private static unsafe void OnRender(double obj)
         {
+
+
+     
+          
             Gl.Enable(EnableCap.DepthTest);
             Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
@@ -159,13 +172,7 @@ namespace Tutorial
             Shader.Use();
             Shader.SetUniform("uTexture0", 0);
             var difference = (float)(window.Time * 100);
-
             var size = window.FramebufferSize;
-
-
-
-
-
             var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
             var view = Matrix4x4.CreateLookAt(Camera.CameraPosition, Camera.CameraPosition + Camera.CameraFront, Camera.CameraUp);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 100.0f);
