@@ -5,6 +5,8 @@ using System.Numerics;
 using Silk.NET.Maths;
 using FreeCam;
 
+using GlmSharp;
+
 
 namespace Tutorial
 {
@@ -23,10 +25,10 @@ namespace Tutorial
         private static Shader Shader;
 
         private static Model Model;
-        
+
         private static readonly float[] Vertices =
         {
-            //X    Y      Z     U   V
+
             -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
              0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
              0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -72,10 +74,10 @@ namespace Tutorial
 
 
 
-        private static readonly uint[] Indices ={0, 1, 2};
+        private static readonly uint[] Indices = { 0, 1, 2 };
 
 
-        private static Camera camera ;
+        private static Camera camera;
 
 
         private static void Main(string[] args)
@@ -105,7 +107,7 @@ namespace Tutorial
             if (primaryKeyboard != null)
             {
                 primaryKeyboard.KeyDown += KeyDown;
-                camera = new Camera(primaryKeyboard,input);
+                camera = new Camera(primaryKeyboard, input);
             }
 
             Gl = GL.GetApi(window);
@@ -114,11 +116,11 @@ namespace Tutorial
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
             Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl,"assets/Grass_Block_TEX1.png");
+            Texture = new Texture(Gl, "assets/Grass_Block_TEX1.png");
             Model = new Model(Gl, "assets/cube.model");
 
-            
-            
+
+
         }
 
         private static unsafe void OnUpdate(double deltaTime)
@@ -127,22 +129,22 @@ namespace Tutorial
 
             if (primaryKeyboard.IsKeyPressed(Key.W))
             {
-                //Move forwards
+
                 Camera.CameraPosition += moveSpeed * Camera.CameraFront;
             }
             if (primaryKeyboard.IsKeyPressed(Key.S))
             {
-                //Move backwards
+
                 Camera.CameraPosition -= moveSpeed * Camera.CameraFront;
             }
             if (primaryKeyboard.IsKeyPressed(Key.A))
             {
-                //Move left
+
                 Camera.CameraPosition -= Vector3.Normalize(Vector3.Cross(Camera.CameraFront, Camera.CameraUp)) * moveSpeed;
             }
             if (primaryKeyboard.IsKeyPressed(Key.D))
             {
-                //Move right
+
                 Camera.CameraPosition += Vector3.Normalize(Vector3.Cross(Camera.CameraFront, Camera.CameraUp)) * moveSpeed;
             }
         }
@@ -150,22 +152,35 @@ namespace Tutorial
         private static unsafe void OnRender(double obj)
         {
             Gl.Enable(EnableCap.DepthTest);
-            Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+            Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
             Vao.Bind();
             Texture.Bind();
             Shader.Use();
             Shader.SetUniform("uTexture0", 0);
-            var difference = (float) (window.Time * 100);
+            var difference = (float)(window.Time * 100);
 
             var size = window.FramebufferSize;
+
+
+
 
 
             var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
             var view = Matrix4x4.CreateLookAt(Camera.CameraPosition, Camera.CameraPosition + Camera.CameraFront, Camera.CameraUp);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 100.0f);
 
-            Shader.SetUniform("uModel", model);
+            Vector3 scaleVector = new Vector3(1.0f, 1.0f, 1.0f);
+            Quaternion rotationQuaternion = Quaternion.Identity;
+            Vector3 translationVector = new Vector3(0.0f, 0.0f, 0.0f);
+
+            Matrix4x4 scaleMatrix = Matrix4x4.CreateScale(scaleVector);
+            Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotationQuaternion);
+            Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(translationVector);
+            Matrix4x4 worldMatrix = scaleMatrix * rotationMatrix * translationMatrix;
+
+
+            Shader.SetUniform("uModel", worldMatrix);
             Shader.SetUniform("uView", view);
             Shader.SetUniform("uProjection", projection);
 
@@ -176,13 +191,13 @@ namespace Tutorial
                 Shader.Use();
                 Texture.Bind();
                 Shader.SetUniform("uTexture0", 0);
-                Shader.SetUniform("uModel", model);
+                Shader.SetUniform("uModel", worldMatrix);
                 Shader.SetUniform("uView", view);
                 Shader.SetUniform("uProjection", projection);
-
-                Gl.DrawElements(PrimitiveType.Triangles, (uint) mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
+                Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
         }
+
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
         {
@@ -204,6 +219,6 @@ namespace Tutorial
                 window.Close();
             }
         }
-       
+
     }
 }
