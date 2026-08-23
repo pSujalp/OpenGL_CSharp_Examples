@@ -127,8 +127,8 @@ namespace Tutorial
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
             Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
-            Model = new Model(Gl, "assets/backpack/backpack.obj");
+            Texture = new Texture(Gl, "assets/rock/rock.png");
+            Model = new Model(Gl, "assets/rock/rock.obj");
 
 
 
@@ -181,7 +181,7 @@ namespace Tutorial
 
             var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
             var view = Matrix4x4.CreateLookAt(Camera.CameraPosition, Camera.CameraPosition + Camera.CameraFront, Camera.CameraUp);
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 100.0f);
+            var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 3000.0f);
 
             Vector3 scaleVector = new Vector3(1.0f, 1.0f, 1.0f);
             Quaternion rotationQuaternion = Quaternion.Identity;
