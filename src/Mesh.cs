@@ -19,11 +19,11 @@ namespace Tutorial
         }
 
         public float[] Vertices { get; private set; }
-        public uint[] Indices { get; private set; }
+        public UInt32[] Indices { get; private set; }
         public IReadOnlyList<Texture> Textures { get; private set; }
         public VertexArrayObject<float, uint> VAO { get; set; }
         public BufferObject<float> VBO { get; set; }
-        public BufferObject<uint> EBO { get; set; }
+        public BufferObject<UInt32> EBO { get; set; }
         public GL GL { get; }
 
         public unsafe void SetupMesh()
@@ -38,6 +38,7 @@ namespace Tutorial
         public void Bind()
         {
             VAO.Bind();
+            EBO.Bind();
         }
 
         public void Dispose()

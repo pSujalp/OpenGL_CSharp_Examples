@@ -207,7 +207,7 @@ namespace Tutorial
                 Shader.SetUniform("uModel", worldMatrix);
                 Shader.SetUniform("uView", view);
                 Shader.SetUniform("uProjection", projection);
-                Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
+                Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length , DrawElementsType.UnsignedInt, null);
             }
         }
 

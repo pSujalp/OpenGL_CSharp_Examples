@@ -61,7 +61,7 @@ namespace Tutorial
         {
             // data to fill
             List<Vertex> vertices = new List<Vertex>();
-            List<uint> indices = new List<uint>();
+            List<UInt32> indices = new List<UInt32>();
             List<Texture> textures = new List<Texture>();
 
             // walk through each of the mesh's vertices
@@ -180,7 +180,7 @@ namespace Tutorial
             return vertices.ToArray();
         }
 
-        private uint[] BuildIndices(List<uint> indices)
+        private UInt32[] BuildIndices(List<UInt32> indices)
         {
             return indices.ToArray();
         }
