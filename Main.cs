@@ -5,7 +5,7 @@ using System.Numerics;
 using Silk.NET.Maths;
 using FreeCam;
 
-using GlmSharp;
+
 
 
 namespace Tutorial
