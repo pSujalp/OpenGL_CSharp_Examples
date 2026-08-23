@@ -85,7 +85,13 @@ namespace Tutorial
             var options = WindowOptions.Default;
             options.Size = new Vector2D<int>(800, 600);
             options.Title = "LearnOpenGL with Silk.NET";
-            options.WindowState = WindowState.Normal;
+            options.PreferredDepthBufferBits = 24;
+            options.PreferredStencilBufferBits = 8;
+            options.API = new GraphicsAPI(
+                ContextAPI.OpenGL,
+                ContextProfile.Core,
+                ContextFlags.ForwardCompatible,
+                new APIVersion(3, 3));
 
             window = Window.Create(options);
             window.Load += OnLoad;
@@ -111,13 +117,18 @@ namespace Tutorial
             }
 
             Gl = GL.GetApi(window);
+            Gl.DepthFunc(DepthFunction.Less);
+            Gl.Enable(EnableCap.DepthTest);
+            Gl.Enable(EnableCap.CullFace);
+
+
             Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
             Vao = new VertexArrayObject<float, uint>(Gl, Vbo);
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
             Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/Grass_Block_TEX1.png");
-            Model = new Model(Gl, "assets/cube.model");
+            Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
+            Model = new Model(Gl, "assets/backpack/backpack.obj");
 
 
 
@@ -151,8 +162,10 @@ namespace Tutorial
 
         private static unsafe void OnRender(double obj)
         {
-            Gl.Enable(EnableCap.DepthTest);
-            Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+            
+            Gl.Clear((UInt16)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+
+            
 
             Vao.Bind();
             Texture.Bind();
