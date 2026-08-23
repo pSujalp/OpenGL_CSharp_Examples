@@ -127,8 +127,8 @@ namespace Tutorial
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
             Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/rock/rock.png");
-            Model = new Model(Gl, "assets/rock/rock.obj");
+            Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
+            Model = new Model(Gl, "assets/backpack/backpack.obj");
 
 
 

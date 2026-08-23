@@ -105,30 +105,30 @@ namespace Tutorial
             }
 
             // process materials
-            Material* material = scene->MMaterials[mesh->MMaterialIndex];
-            // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-            // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-            // Same applies to other texture as the following list summarizes:
-            // diffuse: texture_diffuseN
-            // specular: texture_specularN
-            // normal: texture_normalN
+            // Material* material = scene->MMaterials[mesh->MMaterialIndex];
+            // // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
+            // // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
+            // // Same applies to other texture as the following list summarizes:
+            // // diffuse: texture_diffuseN
+            // // specular: texture_specularN
+            // // normal: texture_normalN
 
-            // 1. diffuse maps
-            var diffuseMaps = LoadMaterialTextures(material, TextureType.Diffuse, "texture_diffuse");
-            if (diffuseMaps.Any())
-                textures.AddRange(diffuseMaps);
-            // 2. specular maps
-            var specularMaps = LoadMaterialTextures(material, TextureType.Specular, "texture_specular");
-            if (specularMaps.Any())
-                textures.AddRange(specularMaps);
-            // 3. normal maps
-            var normalMaps = LoadMaterialTextures(material, TextureType.Height, "texture_normal");
-            if (normalMaps.Any())
-                textures.AddRange(normalMaps);
-            // 4. height maps
-            var heightMaps = LoadMaterialTextures(material, TextureType.Ambient, "texture_height");
-            if (heightMaps.Any())
-                textures.AddRange(heightMaps);
+            
+            // var diffuseMaps = LoadMaterialTextures(material, TextureType.Diffuse, "texture_diffuse");
+            // if (diffuseMaps.Any())
+            //     textures.AddRange(diffuseMaps);
+            
+            // var specularMaps = LoadMaterialTextures(material, TextureType.Specular, "texture_specular");
+            // if (specularMaps.Any())
+            //     textures.AddRange(specularMaps);
+            // // 3. normal maps
+            // var normalMaps = LoadMaterialTextures(material, TextureType.Height, "texture_normal");
+            // if (normalMaps.Any())
+            //     textures.AddRange(normalMaps);
+            // // 4. height maps
+            // var heightMaps = LoadMaterialTextures(material, TextureType.Ambient, "texture_height");
+            // if (heightMaps.Any())
+            //     textures.AddRange(heightMaps);
 
             // return a mesh object created from the extracted mesh data
             var result = new Mesh(_gl, BuildVertices(vertices), BuildIndices(indices), textures);
