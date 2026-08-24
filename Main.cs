@@ -131,8 +131,6 @@ namespace Tutorial
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
             Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
             Model = new Model(Gl, "assets/backpack/backpack.obj");
-
-
             string[] paths = {
        ("assets/skybox/right.jpg"),
        ("assets/skybox/left.jpg"),
@@ -141,9 +139,7 @@ namespace Tutorial
        ("assets/skybox/front.jpg"),
        ("assets/skybox/back.jpg"),
                              };
-
             skybox = new Skybox(paths, Gl);
-
         }
 
         private static unsafe void OnUpdate(double deltaTime)
@@ -193,8 +189,6 @@ namespace Tutorial
             Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotationQuaternion);
             Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(translationVector);
             Matrix4x4 worldMatrix = scaleMatrix * rotationMatrix * translationMatrix;
-
-
             Shader.SetUniform("uModel", worldMatrix);
             Shader.SetUniform("uView", view);
             Shader.SetUniform("uProjection", projection);
@@ -203,11 +197,7 @@ namespace Tutorial
             {
                 mesh.Bind();
                 Shader.Use();
-
-                
                 skybox.Texture.BindCubeMap(TextureUnit.Texture0);
-
-               
                 Shader.SetUniform("skybox",0);
                 Shader.SetUniform("uModel", worldMatrix);
                 Shader.SetUniform("uView", view);
@@ -215,7 +205,6 @@ namespace Tutorial
                 Shader.SetUniform("cameraPos", Camera.CameraPosition);
                 Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
-
             skybox.Draw(gL:Gl,view,projection);
         }
 
