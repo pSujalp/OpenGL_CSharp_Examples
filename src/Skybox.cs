@@ -80,8 +80,6 @@ class Skybox
         shader.Use();
         Texture.BindCubeMap(TextureUnit.Texture0);
         shader.SetUniform("skybox", 0);
-
-
         shader.SetUniform("view",view);
         shader.SetUniform("projection",proj);
         gL.DrawArrays(PrimitiveType.Triangles, 0, (uint)SkyboxVertices.Length);

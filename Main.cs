@@ -152,7 +152,6 @@ namespace Tutorial
 
             if (primaryKeyboard.IsKeyPressed(Key.W))
             {
-
                 Camera.CameraPosition += moveSpeed * Camera.CameraFront;
             }
             if (primaryKeyboard.IsKeyPressed(Key.S))
@@ -176,21 +175,12 @@ namespace Tutorial
         {
 
             Gl.Clear((UInt16)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
-
-
-
             Vao.Bind();
-            Texture.Bind();
+            
             Shader.Use();
-            Shader.SetUniform("uTexture0", 0);
+            
             var difference = (float)(window.Time * 100);
-
             var size = window.FramebufferSize;
-
-
-
-
-
             var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
             var view = Matrix4x4.CreateLookAt(Camera.CameraPosition, Camera.CameraPosition + Camera.CameraFront, Camera.CameraUp);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 3000.0f);
@@ -208,17 +198,21 @@ namespace Tutorial
             Shader.SetUniform("uModel", worldMatrix);
             Shader.SetUniform("uView", view);
             Shader.SetUniform("uProjection", projection);
-
-
+            Shader.SetUniform("cameraPos", Camera.CameraPosition);
             foreach (var mesh in Model.Meshes)
             {
                 mesh.Bind();
                 Shader.Use();
-                Texture.Bind();
-                Shader.SetUniform("uTexture0", 0);
+
+                
+                skybox.Texture.BindCubeMap(TextureUnit.Texture0);
+
+               
+                Shader.SetUniform("skybox",0);
                 Shader.SetUniform("uModel", worldMatrix);
                 Shader.SetUniform("uView", view);
                 Shader.SetUniform("uProjection", projection);
+                Shader.SetUniform("cameraPos", Camera.CameraPosition);
                 Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
 
@@ -236,7 +230,7 @@ namespace Tutorial
             Vbo.Dispose();
             Vao.Dispose();
             Shader.Dispose();
-            Texture.Dispose();
+            
         }
 
         private static void KeyDown(IKeyboard arg1, Key arg2, int arg3)
