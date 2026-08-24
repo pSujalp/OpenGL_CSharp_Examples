@@ -59,12 +59,7 @@ namespace Tutorial
         }
         public unsafe void SetUniform(string name, mat4 value)
         {
-            Matrix4x4 matrix4X4 = new Matrix4x4(
-                value[0, 0], value[0, 1], value[0, 2], value[0, 3],
-                value[1, 0], value[1, 1], value[1, 2], value[1, 3],
-                value[2, 0], value[2, 1], value[2, 2], value[2, 3],
-                value[3, 0], value[3, 1], value[3, 2], value[3, 3]
-            );
+            
             int location = _gl.GetUniformLocation(_handle, name);
             if (location == -1)
             {
@@ -74,7 +69,7 @@ namespace Tutorial
                 location,
                 1,
                 false,
-                (float*)&matrix4X4
+                (float*)&value
             );
         }
 
@@ -87,6 +82,8 @@ namespace Tutorial
             }
             _gl.Uniform1(location, value);
         }
+
+        
 
         public void Dispose()
         {

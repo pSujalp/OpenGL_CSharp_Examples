@@ -20,7 +20,7 @@ namespace Tutorial
 
         public static Texture Texture;
         private static Shader Shader;
-        
+
         private static readonly float[] Vertices =
         {
             //X    Y      Z     U   V
@@ -69,7 +69,7 @@ namespace Tutorial
 
 
 
-        private static readonly uint[] Indices ={0, 1, 2};
+        private static readonly uint[] Indices = { 0, 1, 2 };
 
         private static Vector3 CameraPosition = new Vector3(0.0f, 0.0f, 3.0f);
         private static Vector3 CameraTarget = Vector3.Zero;
@@ -84,6 +84,10 @@ namespace Tutorial
             options.Size = new Vector2D<int>(800, 600);
             options.Title = "LearnOpenGL with Silk.NET";
             options.WindowState = WindowState.Normal;
+            options.PreferredDepthBufferBits = 24;
+            options.PreferredStencilBufferBits = 8;
+
+            options.API = new GraphicsAPI(ContextAPI.OpenGL,ContextProfile.Core,ContextFlags.ForwardCompatible,new APIVersion(3, 3));
 
             window = Window.Create(options);
             window.Load += OnLoad;
@@ -104,6 +108,8 @@ namespace Tutorial
             }
             Gl = GL.GetApi(window);
 
+            Gl.Enable(EnableCap.StencilTest);
+            Gl.Enable(EnableCap.DepthTest);
 
             Ebo = new BufferObject<uint>(Gl, Indices, BufferTargetARB.ElementArrayBuffer);
             Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
@@ -111,44 +117,69 @@ namespace Tutorial
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
             Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
+            Texture = new Texture(Gl, "assets/Grass_Block_TEX1.png");
 
-            Texture = new Texture(Gl,"assets/Grass_Block_TEX1.png");
-            
         }
 
         private static unsafe void OnRender(double obj)
         {
-            Gl.Enable(EnableCap.DepthTest);
-            Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+
+            Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit));
 
             Vao.Bind();
             Texture.Bind();
             Shader.Use();
             Shader.SetUniform("uTexture0", 0);
-            var difference = (float) (window.Time * 100);
+            Shader.SetUniform("enableOutline", 0);
+            var difference = (float)(window.Time * 100);
 
             var size = window.FramebufferSize;
 
 
+            Gl.StencilFunc(GLEnum.Always, 1, 0xFF);
+            Gl.StencilMask(0xFF);
+            Gl.StencilOp(GLEnum.Keep, GLEnum.Keep, GLEnum.Replace);
+            Gl.Enable(EnableCap.DepthTest);
+
+
+
+
             mat4 model1 = mat4.Identity;
             model1 = mat4.RotateY(MathHelper.DegreesToRadians(difference));
-            model1 = model1 * mat4.Scale(.4f,.4f,.4f);
-            mat4 proj = mat4.Perspective(MathHelper.DegreesToRadians(45.0f),(float)size.X / size.Y, 0.1f, 1000.0f);
-            mat4 view1 = mat4.LookAt(new vec3(CameraPosition.X,CameraPosition.Y,CameraPosition.Z),
-                                               new vec3(CameraTarget.X,CameraTarget.Y,CameraTarget.Z),
-                                               new vec3(CameraUp.X,CameraUp.Y,CameraUp.Z));
-            
-
-            
-
+            model1 = model1 * mat4.Scale(0.500f, 0.500f, 0.500f);
+            mat4 proj = mat4.Perspective(MathHelper.DegreesToRadians(45.0f), (float)size.X / size.Y, 0.1f, 1000.0f);
+            mat4 view1 = mat4.LookAt(new vec3(CameraPosition.X, CameraPosition.Y, CameraPosition.Z),
+                                               new vec3(CameraTarget.X, CameraTarget.Y, CameraTarget.Z),
+                                               new vec3(CameraUp.X, CameraUp.Y, CameraUp.Z));
             Shader.SetUniform("uModel", model1);
             Shader.SetUniform("uView", view1);
             Shader.SetUniform("uProjection", proj);
+            Shader.SetUniform("enableOutline", 0);
 
-            
+
             Gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
-           
-           
+
+
+
+            model1 = mat4.Identity;
+            model1 = mat4.RotateY(MathHelper.DegreesToRadians(difference));
+            model1 = model1 * mat4.Scale(0.572f, 0.572f, 0.572f);
+
+            Shader.SetUniform("uModel", model1);
+            Shader.SetUniform("enableOutline", 1);
+
+
+
+            Gl.StencilFunc(GLEnum.Notequal, 1, 0xFF);
+            Gl.StencilMask(0x00);
+            Gl.Disable(EnableCap.DepthTest);
+
+
+            Gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+
+
+
         }
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
@@ -164,7 +195,7 @@ namespace Tutorial
             Vao.Dispose();
             Shader.Dispose();
             Texture.Dispose();
-          
+
         }
 
         private static void KeyDown(IKeyboard arg1, Key arg2, int arg3)
