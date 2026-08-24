@@ -57,16 +57,7 @@ namespace Tutorial
             }
             _gl.UniformMatrix4(location, 1, false, (float*) &value);
         }
-        public unsafe void SetUniform(string name, mat4 value)
-        {
-            //A new overload has been created for setting a uniform so we can use the transform in our shader.
-            int location = _gl.GetUniformLocation(_handle, name);
-            if (location == -1)
-            {
-                throw new Exception($"{name} uniform not found on shader.");
-            }
-            _gl.UniformMatrix4(location, 1, false, (float*) &value);
-        }
+        
 
         public void SetUniform(string name, float value)
         {

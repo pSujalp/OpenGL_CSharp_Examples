@@ -79,6 +79,8 @@ namespace Tutorial
 
         private static Camera camera;
 
+        public static Skybox skybox;
+
 
         private static void Main(string[] args)
         {
@@ -131,6 +133,16 @@ namespace Tutorial
             Model = new Model(Gl, "assets/backpack/backpack.obj");
 
 
+            string[] paths = {
+       ("assets/skybox/right.jpg"),
+       ("assets/skybox/left.jpg"),
+       ("assets/skybox/top.jpg"),
+       ("assets/skybox/bottom.jpg"),
+       ("assets/skybox/front.jpg"),
+       ("assets/skybox/back.jpg"),
+                             };
+
+            skybox = new Skybox(paths, Gl);
 
         }
 
@@ -162,10 +174,10 @@ namespace Tutorial
 
         private static unsafe void OnRender(double obj)
         {
-            
+
             Gl.Clear((UInt16)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
-            
+
 
             Vao.Bind();
             Texture.Bind();
@@ -207,8 +219,10 @@ namespace Tutorial
                 Shader.SetUniform("uModel", worldMatrix);
                 Shader.SetUniform("uView", view);
                 Shader.SetUniform("uProjection", projection);
-                Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length , DrawElementsType.UnsignedInt, null);
+                Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
+
+            skybox.Draw(gL:Gl,view,projection);
         }
 
 
