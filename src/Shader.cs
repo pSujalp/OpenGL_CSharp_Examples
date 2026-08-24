@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Numerics;
+using GlmSharp;
 using Silk.NET.OpenGL;
 
 namespace Tutorial
@@ -54,7 +55,27 @@ namespace Tutorial
             {
                 throw new Exception($"{name} uniform not found on shader.");
             }
-            _gl.UniformMatrix4(location, 1, false, (float*) &value);
+            _gl.UniformMatrix4(location, 1, false, (float*)&value);
+        }
+        public unsafe void SetUniform(string name, mat4 value)
+        {
+            Matrix4x4 matrix4X4 = new Matrix4x4(
+                value[0, 0], value[0, 1], value[0, 2], value[0, 3],
+                value[1, 0], value[1, 1], value[1, 2], value[1, 3],
+                value[2, 0], value[2, 1], value[2, 2], value[2, 3],
+                value[3, 0], value[3, 1], value[3, 2], value[3, 3]
+            );
+            int location = _gl.GetUniformLocation(_handle, name);
+            if (location == -1)
+            {
+                throw new Exception($"{name} uniform not found on shader.");
+            }
+            _gl.UniformMatrix4(
+                location,
+                1,
+                false,
+                (float*)&matrix4X4
+            );
         }
 
         public void SetUniform(string name, float value)

@@ -3,6 +3,7 @@ using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using System.Numerics;
 using Silk.NET.Maths;
+using GlmSharp;
 
 
 namespace Tutorial
@@ -128,15 +129,23 @@ namespace Tutorial
 
             var size = window.FramebufferSize;
 
-            var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
-            var view = Matrix4x4.CreateLookAt(CameraPosition, CameraTarget, CameraUp);
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), (float)size.X / size.Y, 0.1f, 100.0f);
 
-            Shader.SetUniform("uModel", model);
-            Shader.SetUniform("uView", view);
-            Shader.SetUniform("uProjection", projection);
+            mat4 model1 = mat4.Identity;
+            model1 = mat4.RotateY(MathHelper.DegreesToRadians(difference));
+            model1 = model1 * mat4.Scale(.4f,.4f,.4f);
+            mat4 proj = mat4.Perspective(MathHelper.DegreesToRadians(45.0f),(float)size.X / size.Y, 0.1f, 1000.0f);
+            mat4 view1 = mat4.LookAt(new vec3(CameraPosition.X,CameraPosition.Y,CameraPosition.Z),
+                                               new vec3(CameraTarget.X,CameraTarget.Y,CameraTarget.Z),
+                                               new vec3(CameraUp.X,CameraUp.Y,CameraUp.Z));
+            
 
-            //We're drawing with just vertices and no indicies, and it takes 36 verticies to have a six-sided textured cube
+            
+
+            Shader.SetUniform("uModel", model1);
+            Shader.SetUniform("uView", view1);
+            Shader.SetUniform("uProjection", proj);
+
+            
             Gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
            
            
