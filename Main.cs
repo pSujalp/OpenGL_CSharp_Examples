@@ -119,7 +119,9 @@ namespace Tutorial
             Gl = GL.GetApi(window);
             Gl.DepthFunc(DepthFunction.Less);
             Gl.Enable(EnableCap.DepthTest);
+            
             Gl.Enable(EnableCap.CullFace);
+            Gl.CullFace(GLEnum.Back);
 
 
             Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
