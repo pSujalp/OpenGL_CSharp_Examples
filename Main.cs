@@ -23,8 +23,31 @@ namespace Tutorial
 
         public static Texture Texture;
         private static Shader Shader;
+        private static Shader ScreenShader;
 
         private static Model Model;
+
+        private static uint fbo;
+
+        private static BufferObject<float> VboScreen;
+        private static VertexArrayObject<float, uint> VaoScreen;
+
+        private static uint textureColorBuffer;
+
+
+
+        private static readonly float[] quadVertices = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+    };
+
+
 
         private static readonly float[] Vertices =
         {
@@ -82,7 +105,7 @@ namespace Tutorial
 
         private static void Main(string[] args)
         {
-            var options = WindowOptions.Default;
+            var options = WindowOptions.Default ;
             options.Size = new Vector2D<int>(800, 600);
             options.Title = "LearnOpenGL with Silk.NET";
             options.PreferredDepthBufferBits = 24;
@@ -92,7 +115,10 @@ namespace Tutorial
                 ContextProfile.Core,
                 ContextFlags.ForwardCompatible,
                 new APIVersion(3, 3));
+            options.WindowState = WindowState.Maximized ;
+            options.WindowBorder = WindowBorder.Resizable;
 
+            
             window = Window.Create(options);
             window.Load += OnLoad;
             window.Render += OnRender;
@@ -105,7 +131,7 @@ namespace Tutorial
         }
 
 
-        private static void OnLoad()
+        private static unsafe void OnLoad()
         {
 
             IInputContext input = window.CreateInput();
@@ -122,6 +148,40 @@ namespace Tutorial
             Gl.Enable(EnableCap.CullFace);
 
 
+            var size = window.FramebufferSize;
+            fbo = Gl.GenFramebuffer();
+            Gl.BindFramebuffer(GLEnum.Framebuffer, fbo);
+
+
+            fixed (uint* ptr = &textureColorBuffer)
+            {
+                Gl.GenTextures(1, ptr);
+            }
+            Gl.BindTexture(GLEnum.Texture2D, textureColorBuffer);
+            Gl.TexImage2D(GLEnum.Texture2D, 0, (int)GLEnum.Rgb, (uint)size.X, (uint)size.Y, 0, GLEnum.Rgb, GLEnum.UnsignedByte, null);
+            Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Linear);
+            Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Linear);
+            Gl.FramebufferTexture2D(GLEnum.Framebuffer, GLEnum.ColorAttachment0, GLEnum.Texture2D, textureColorBuffer, 0);
+
+
+
+            uint rbo;
+
+            rbo = Gl.GenRenderbuffer();
+            Gl.BindRenderbuffer(GLEnum.Renderbuffer, rbo);
+            Gl.RenderbufferStorage(GLEnum.Renderbuffer, GLEnum.Depth24Stencil8, (uint)size.X, (uint)size.Y);
+            Gl.FramebufferRenderbuffer(GLEnum.Framebuffer, GLEnum.DepthStencilAttachment, GLEnum.Renderbuffer, rbo);
+
+            if (Gl.CheckFramebufferStatus(GLEnum.Framebuffer) != GLEnum.FramebufferComplete)
+            {
+                Console.WriteLine("Failed to create a framebuffer");
+                return;
+            }
+            Gl.BindFramebuffer(GLEnum.Framebuffer, 0);
+
+
+
+
             Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
             Vao = new VertexArrayObject<float, uint>(Gl, Vbo);
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
@@ -129,6 +189,16 @@ namespace Tutorial
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
             Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
             Model = new Model(Gl, "assets/backpack/backpack.obj");
+
+            VboScreen = new BufferObject<float>(Gl, quadVertices, BufferTargetARB.ArrayBuffer);
+            VaoScreen = new VertexArrayObject<float, uint>(Gl, VboScreen);
+            VaoScreen.VertexAttributePointer(0, 2, VertexAttribPointerType.Float, 4, 0);
+            VaoScreen.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 4, 2);
+            ScreenShader = new Shader(Gl, "shaders/ScreenShader.vert", "shaders/ScreenShader.frag");
+
+
+
+
 
 
 
@@ -162,20 +232,18 @@ namespace Tutorial
 
         private static unsafe void OnRender(double obj)
         {
-            
-            Gl.Clear((UInt16)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
-            
 
-            Vao.Bind();
-            Texture.Bind();
-            Shader.Use();
-            Shader.SetUniform("uTexture0", 0);
+
+
             var difference = (float)(window.Time * 100);
 
             var size = window.FramebufferSize;
 
-
+            Gl.BindFramebuffer(GLEnum.Framebuffer, fbo);
+            Gl.Enable(EnableCap.DepthTest);
+            Gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
 
 
@@ -207,14 +275,60 @@ namespace Tutorial
                 Shader.SetUniform("uModel", worldMatrix);
                 Shader.SetUniform("uView", view);
                 Shader.SetUniform("uProjection", projection);
-                Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length , DrawElementsType.UnsignedInt, null);
+                Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
+
+            Gl.BindVertexArray(0);
+
+
+
+            Gl.BindFramebuffer(GLEnum.Framebuffer, 0);
+            Gl.Disable(EnableCap.DepthTest);
+            Gl.ClearColor(1, 1, 1, 1);
+            Gl.Clear((UInt16)(ClearBufferMask.ColorBufferBit));
+
+            VaoScreen.Bind();
+            ScreenShader.Use();
+            ScreenShader.SetUniform("screenTexture", 0);
+
+            Gl.ActiveTexture(GLEnum.Texture0);
+            Gl.BindTexture(GLEnum.Texture2D, textureColorBuffer);
+            Gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
+
+
+
         }
 
 
-        private static void OnFramebufferResize(Vector2D<int> newSize)
+        private static unsafe void OnFramebufferResize(Vector2D<int> newSize)
         {
             Gl.Viewport(newSize);
+
+            fixed (uint* ptr = &textureColorBuffer)
+            {
+                Gl.GenTextures(1, ptr);
+            }
+            Gl.BindTexture(GLEnum.Texture2D, textureColorBuffer);
+            Gl.TexImage2D(GLEnum.Texture2D, 0, (int)GLEnum.Rgb, (uint)newSize.X, (uint)newSize.Y, 0, GLEnum.Rgb, GLEnum.UnsignedByte, null);
+            Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Linear);
+            Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Linear);
+            Gl.FramebufferTexture2D(GLEnum.Framebuffer, GLEnum.ColorAttachment0, GLEnum.Texture2D, textureColorBuffer, 0);
+
+
+
+            uint rbo;
+
+            rbo = Gl.GenRenderbuffer();
+            Gl.BindRenderbuffer(GLEnum.Renderbuffer, rbo);
+            Gl.RenderbufferStorage(GLEnum.Renderbuffer, GLEnum.Depth24Stencil8, (uint)newSize.X, (uint)newSize.Y);
+            Gl.FramebufferRenderbuffer(GLEnum.Framebuffer, GLEnum.DepthStencilAttachment, GLEnum.Renderbuffer, rbo);
+
+            if (Gl.CheckFramebufferStatus(GLEnum.Framebuffer) != GLEnum.FramebufferComplete)
+            {
+                Console.WriteLine("Failed to create a framebuffer");
+                return;
+            }
+            Gl.BindFramebuffer(GLEnum.Framebuffer, 0);
         }
 
         private static void OnClose()
@@ -223,6 +337,8 @@ namespace Tutorial
             Vao.Dispose();
             Shader.Dispose();
             Texture.Dispose();
+            VboScreen.Dispose();
+            VaoScreen.Dispose();
         }
 
         private static void KeyDown(IKeyboard arg1, Key arg2, int arg3)
