@@ -4,6 +4,9 @@ using Silk.NET.Windowing;
 using System.Numerics;
 using Silk.NET.Maths;
 using GlmSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Tutorial
@@ -13,7 +16,6 @@ namespace Tutorial
         private static IWindow window;
         private static GL Gl;
 
-
         private static BufferObject<float> Vbo;
         private static BufferObject<uint> Ebo;
         private static VertexArrayObject<float, uint> Vao;
@@ -21,55 +23,21 @@ namespace Tutorial
         public static Texture Texture;
         private static Shader Shader;
         
-        private static readonly float[] Vertices =
-        {
-            //X    Y      Z     U   V
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        private static readonly  float[] transparentVertices = {
+        // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+        0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+        1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+    };
 
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-        };
+        private static List<vec3> windowsPos = new List<vec3>();
 
 
-
-        private static readonly uint[] Indices ={0, 1, 2};
+        private static readonly uint[] Indices ={0, 1, 2, 3 ,0};
 
         private static Vector3 CameraPosition = new Vector3(0.0f, 0.0f, 3.0f);
         private static Vector3 CameraTarget = Vector3.Zero;
@@ -103,17 +71,25 @@ namespace Tutorial
                 input.Keyboards[i].KeyDown += KeyDown;
             }
             Gl = GL.GetApi(window);
+            Gl.Enable(EnableCap.Blend );
+            Gl.Enable(EnableCap.DepthTest);
+            Gl.BlendFunc(0,GLEnum.SrcAlpha,GLEnum.OneMinusSrcAlpha);
 
 
             Ebo = new BufferObject<uint>(Gl, Indices, BufferTargetARB.ElementArrayBuffer);
-            Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
+            Vbo = new BufferObject<float>(Gl, transparentVertices, BufferTargetARB.ArrayBuffer);
             Vao = new VertexArrayObject<float, uint>(Gl, Vbo, Ebo);
             Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
             Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
 
-            Texture = new Texture(Gl,"assets/Grass_Block_TEX1.png");
-            
+            Texture = new Texture(Gl,"assets/window.png");    
+
+            windowsPos.Add(new vec3(-1.5f, 0.0f, -0.48f)); 
+            windowsPos.Add(new vec3(1.5f, 0.0f, 0.51f)); 
+            windowsPos.Add(new vec3( 0.0f, 0.0f, 0.7f));
+            windowsPos.Add(new vec3( -0.3f, 0.0f, -2.3f)); 
+            windowsPos.Add(new vec3( 0.5f, 0.0f, -0.6f)); 
         }
 
         private static unsafe void OnRender(double obj)
@@ -137,18 +113,28 @@ namespace Tutorial
             mat4 view1 = mat4.LookAt(new vec3(CameraPosition.X,CameraPosition.Y,CameraPosition.Z),
                                                new vec3(CameraTarget.X,CameraTarget.Y,CameraTarget.Z),
                                                new vec3(CameraUp.X,CameraUp.Y,CameraUp.Z));
-            
 
-            
 
+            Dictionary<float, vec3> sorted = new Dictionary<float, vec3>();
+
+            for (int i = 0; i < windowsPos.Count; i++)
+            {
+                float dist = vec3.Distance(new vec3(CameraPosition.X, CameraPosition.Y, CameraPosition.Z), windowsPos[i]);
+                sorted.Add(dist, windowsPos[i]);
+            }
+
+            var byKeyDesc = sorted.OrderByDescending(kvp => kvp.Key);
+
+
+            foreach (var kvp in byKeyDesc){
+            model1 = mat4.Identity;
+            model1 = mat4.Translate(kvp.Value.x,kvp.Value.y,kvp.Value.z);
             Shader.SetUniform("uModel", model1);
             Shader.SetUniform("uView", view1);
             Shader.SetUniform("uProjection", proj);
+            Gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-            
-            Gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
-           
-           
+            }  
         }
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
