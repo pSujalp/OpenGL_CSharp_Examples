@@ -17,10 +17,6 @@ namespace Tutorial
         private static IKeyboard primaryKeyboard;
         private static GL Gl;
 
-
-        private static BufferObject<float> Vbo;
-        private static VertexArrayObject<float, uint> Vao;
-
         public static Texture Texture;
         private static Shader Shader;
         private static Shader ScreenShader;
@@ -182,10 +178,7 @@ namespace Tutorial
 
 
 
-            Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
-            Vao = new VertexArrayObject<float, uint>(Gl, Vbo);
-            Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
-            Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
+            
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
             Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
             Model = new Model(Gl, "assets/backpack/backpack.obj");
@@ -329,8 +322,7 @@ namespace Tutorial
 
         private static void OnClose()
         {
-            Vbo.Dispose();
-            Vao.Dispose();
+            
             Shader.Dispose();
             Texture.Dispose();
             VboScreen.Dispose();
