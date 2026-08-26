@@ -11,8 +11,9 @@ float offset = 0.0;
 
 void main()
 {
-    float gamma = 2.2;
-    vec3 color = texture(screenTexture, TexCoords).rgb;
-    color = pow(color, vec3(1.0/2.2));
-    FragColor = vec4(color, 1.0);
+    const float gamma = 2.2;
+    vec3 hdrColor = texture(screenTexture, TexCoords).rgb;
+    vec3 mapped = vec3(1.0) - exp(-hdrColor * 4.5f);
+    mapped = pow(mapped, vec3(1.0 / gamma));
+    FragColor = vec4(mapped, 1.0);
 }  

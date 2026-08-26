@@ -154,7 +154,7 @@ namespace Tutorial
                 Gl.GenTextures(1, ptr);
             }
             Gl.BindTexture(GLEnum.Texture2D, textureColorBuffer);
-            Gl.TexImage2D(GLEnum.Texture2D, 0, (int)GLEnum.Rgb, (uint)size.X, (uint)size.Y, 0, GLEnum.Rgb, GLEnum.UnsignedByte, null);
+            Gl.TexImage2D(GLEnum.Texture2D, 0, (int)GLEnum.Rgba16f, (uint)size.X, (uint)size.Y, 0, GLEnum.Rgb, GLEnum.UnsignedByte, null);
             Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Linear);
             Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Linear);
             Gl.FramebufferTexture2D(GLEnum.Framebuffer, GLEnum.ColorAttachment0, GLEnum.Texture2D, textureColorBuffer, 0);
@@ -302,7 +302,7 @@ namespace Tutorial
                 Gl.GenTextures(1, ptr);
             }
             Gl.BindTexture(GLEnum.Texture2D, textureColorBuffer);
-            Gl.TexImage2D(GLEnum.Texture2D, 0, (int)GLEnum.Rgb, (uint)newSize.X, (uint)newSize.Y, 0, GLEnum.Rgb, GLEnum.UnsignedByte, null);
+            Gl.TexImage2D(GLEnum.Texture2D, 0, (int)GLEnum.Rgb16f, (uint)newSize.X, (uint)newSize.Y, 0, GLEnum.Rgb, GLEnum.UnsignedByte, null);
             Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Linear);
             Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Linear);
             Gl.FramebufferTexture2D(GLEnum.Framebuffer, GLEnum.ColorAttachment0, GLEnum.Texture2D, textureColorBuffer, 0);
