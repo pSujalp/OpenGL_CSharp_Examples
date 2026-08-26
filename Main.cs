@@ -313,11 +313,7 @@ namespace Tutorial
             Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Linear);
             Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Linear);
             Gl.FramebufferTexture2D(GLEnum.Framebuffer, GLEnum.ColorAttachment0, GLEnum.Texture2D, textureColorBuffer, 0);
-
-
-
             uint rbo;
-
             rbo = Gl.GenRenderbuffer();
             Gl.BindRenderbuffer(GLEnum.Renderbuffer, rbo);
             Gl.RenderbufferStorage(GLEnum.Renderbuffer, GLEnum.Depth24Stencil8, (uint)newSize.X, (uint)newSize.Y);
