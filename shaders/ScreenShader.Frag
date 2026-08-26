@@ -11,13 +11,8 @@ float offset = 0.0;
 
 void main()
 {
-    float frequency = renderHeight/3.0;
-
-    float globalPos = (TexCoords.y + offset)*frequency;
-    float wavePos = cos((fract(globalPos) - 0.5)*3.14);
-
-    
-    vec4 texelColor = texture(screenTexture, TexCoords);
-
-    FragColor = mix(vec4(0.0, 0.3, 0.0, 0.0), texelColor, wavePos);
+    float gamma = 2.2;
+    vec3 color = texture(screenTexture, TexCoords).rgb;
+    color = pow(color, vec3(1.0/2.2));
+    FragColor = vec4(color, 1.0);
 }  
