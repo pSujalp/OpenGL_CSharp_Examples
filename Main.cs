@@ -147,19 +147,19 @@ namespace Tutorial
             Vector3 viewPos = new Vector3(InverseView.M41, InverseView.M42, InverseView.M43);
 
 
-            Shader.Use();
-            Shader.SetUniform("model", worldMatrix);
-            Shader.SetUniform("view", view);
-            Shader.SetUniform("projection", projection);
-            Shader.SetUniform("lightPos", lightPos);
-            Shader.SetUniform("viewPos", viewPos);
-            Shader.SetUniform("heightScale",0.2f);
-            DiffTexture.Bind(TextureUnit.Texture0);
-            Shader.SetUniform("diffuseMap", 0);
-            NormalTexture.Bind(TextureUnit.Texture1);
-            Shader.SetUniform("normalMap", 1);
-            DispTexture.Bind(TextureUnit.Texture2);
-            Shader.SetUniform("depthMap", 2);
+            // Shader.Use();
+            // Shader.SetUniform("model", worldMatrix);
+            // Shader.SetUniform("view", view);
+            // Shader.SetUniform("projection", projection);
+            // Shader.SetUniform("lightPos", lightPos);
+            // Shader.SetUniform("viewPos", viewPos);
+            // Shader.SetUniform("heightScale",0.2f);
+            // DiffTexture.Bind(TextureUnit.Texture0);
+            // Shader.SetUniform("diffuseMap", 0);
+            // NormalTexture.Bind(TextureUnit.Texture1);
+            // Shader.SetUniform("normalMap", 1);
+            // DispTexture.Bind(TextureUnit.Texture2);
+            // Shader.SetUniform("depthMap", 2);
 
 
 
