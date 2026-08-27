@@ -23,6 +23,8 @@ namespace Tutorial
 
         public static Texture DiffTexture;
         public static Texture NormalTexture;
+
+        public static Texture DispTexture;
         private static Shader Shader;
 
         private static Model Model;
@@ -75,11 +77,10 @@ namespace Tutorial
 
           
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            DiffTexture = new Texture(Gl, "assets/brickwall.jpg");
-            NormalTexture = new Texture(Gl,"assets/brickwall_normal.jpg");
+            DiffTexture = new Texture(Gl, "assets/bricks2.jpg");
+            NormalTexture = new Texture(Gl,"assets/bricks2_normal.jpg");
+            DispTexture = new Texture(Gl,"assets/bricks2_disp.jpg");
             Model = new Model(Gl, "assets/Plane.fbx");
-
-
 
         }
 
@@ -142,7 +143,7 @@ namespace Tutorial
             Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotationQuaternion);
             Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(translationVector);
             Matrix4x4 worldMatrix = scaleMatrix * rotationMatrix * translationMatrix;
-            Vector3 lightPos = new Vector3(0.5f, 1.0f, 0.3f);
+            Vector3 lightPos = new Vector3(1.5f, 1.5f, 2.0f);
             Vector3 viewPos = new Vector3(InverseView.M41, InverseView.M42, InverseView.M43);
 
 
@@ -152,10 +153,14 @@ namespace Tutorial
             Shader.SetUniform("projection", projection);
             Shader.SetUniform("lightPos", lightPos);
             Shader.SetUniform("viewPos", viewPos);
+            Shader.SetUniform("heightScale",0.2f);
             DiffTexture.Bind(TextureUnit.Texture0);
             Shader.SetUniform("diffuseMap", 0);
             NormalTexture.Bind(TextureUnit.Texture1);
             Shader.SetUniform("normalMap", 1);
+            DispTexture.Bind(TextureUnit.Texture2);
+            Shader.SetUniform("depthMap", 2);
+
 
 
 
@@ -168,7 +173,10 @@ namespace Tutorial
                 Shader.SetUniform("diffuseMap", 0);
                 NormalTexture.Bind(TextureUnit.Texture1);
                 Shader.SetUniform("normalMap", 1);
+                DispTexture.Bind(TextureUnit.Texture2);
+                Shader.SetUniform("depthMap", 2);
 
+                Shader.SetUniform("heightScale",0.2f);
                 Shader.SetUniform("model", worldMatrix);
                 Shader.SetUniform("view", view);
                 Shader.SetUniform("projection", projection);
