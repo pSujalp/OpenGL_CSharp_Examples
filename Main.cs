@@ -21,62 +21,13 @@ namespace Tutorial
         private static BufferObject<float> Vbo;
         private static VertexArrayObject<float, uint> Vao;
 
-        public static Texture Texture;
+        public static Texture DiffTexture;
+        public static Texture NormalTexture;
         private static Shader Shader;
 
         private static Model Model;
 
-        private static readonly float[] Vertices =
-        {
-
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-        };
-
-
-
-        private static readonly uint[] Indices = { 0, 1, 2 };
-
-
+       
         private static Camera camera;
 
 
@@ -122,13 +73,11 @@ namespace Tutorial
             Gl.Enable(EnableCap.CullFace);
 
 
-            Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
-            Vao = new VertexArrayObject<float, uint>(Gl, Vbo);
-            Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
-            Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
+          
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
-            Model = new Model(Gl, "assets/backpack/backpack.obj");
+            DiffTexture = new Texture(Gl, "assets/brickwall.jpg");
+            NormalTexture = new Texture(Gl,"assets/brickwall_normal.jpg");
+            Model = new Model(Gl, "assets/Plane.fbx");
 
 
 
@@ -162,15 +111,13 @@ namespace Tutorial
 
         private static unsafe void OnRender(double obj)
         {
-            
+
             Gl.Clear((UInt16)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
-            
 
-            Vao.Bind();
-            Texture.Bind();
-            Shader.Use();
-            Shader.SetUniform("uTexture0", 0);
+
+
+            
             var difference = (float)(window.Time * 100);
 
             var size = window.FramebufferSize;
@@ -183,6 +130,10 @@ namespace Tutorial
             var view = Matrix4x4.CreateLookAt(Camera.CameraPosition, Camera.CameraPosition + Camera.CameraFront, Camera.CameraUp);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 3000.0f);
 
+
+            var InverseView = Matrix4x4.Identity;
+            Matrix4x4.Invert(view, out InverseView);
+
             Vector3 scaleVector = new Vector3(1.0f, 1.0f, 1.0f);
             Quaternion rotationQuaternion = Quaternion.Identity;
             Vector3 translationVector = new Vector3(0.0f, 0.0f, 0.0f);
@@ -191,23 +142,39 @@ namespace Tutorial
             Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotationQuaternion);
             Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(translationVector);
             Matrix4x4 worldMatrix = scaleMatrix * rotationMatrix * translationMatrix;
+            Vector3 lightPos = new Vector3(4, 1.2f, 3);
+            Vector3 viewPos = new Vector3(InverseView.M41, InverseView.M42, InverseView.M43);
 
 
-            Shader.SetUniform("uModel", worldMatrix);
-            Shader.SetUniform("uView", view);
-            Shader.SetUniform("uProjection", projection);
+            Shader.Use();
+            Shader.SetUniform("model", worldMatrix);
+            Shader.SetUniform("view", view);
+            Shader.SetUniform("projection", projection);
+            Shader.SetUniform("lightPos", lightPos);
+            Shader.SetUniform("viewPos", viewPos);
+            DiffTexture.Bind(TextureUnit.Texture0);
+            Shader.SetUniform("diffuseMap", 0);
+            NormalTexture.Bind(TextureUnit.Texture1);
+            Shader.SetUniform("normalMap", 1);
+
 
 
             foreach (var mesh in Model.Meshes)
             {
                 mesh.Bind();
                 Shader.Use();
-                Texture.Bind();
-                Shader.SetUniform("uTexture0", 0);
-                Shader.SetUniform("uModel", worldMatrix);
-                Shader.SetUniform("uView", view);
-                Shader.SetUniform("uProjection", projection);
-                Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length , DrawElementsType.UnsignedInt, null);
+
+                DiffTexture.Bind(TextureUnit.Texture0);
+                Shader.SetUniform("diffuseMap", 0);
+                NormalTexture.Bind(TextureUnit.Texture1);
+                Shader.SetUniform("normalMap", 1);
+
+                Shader.SetUniform("model", worldMatrix);
+                Shader.SetUniform("view", view);
+                Shader.SetUniform("projection", projection);
+                Shader.SetUniform("lightPos", lightPos);
+                Shader.SetUniform("viewPos", viewPos);
+                Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
         }
 
@@ -219,10 +186,10 @@ namespace Tutorial
 
         private static void OnClose()
         {
-            Vbo.Dispose();
-            Vao.Dispose();
+            
             Shader.Dispose();
-            Texture.Dispose();
+            DiffTexture.Dispose();
+            NormalTexture.Dispose();
         }
 
         private static void KeyDown(IKeyboard arg1, Key arg2, int arg3)

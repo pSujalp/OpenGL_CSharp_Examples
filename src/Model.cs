@@ -29,7 +29,8 @@ namespace Tutorial
         
         private unsafe void LoadModel(string path)
         {
-            var scene = _assimp.ImportFile(path, (uint)PostProcessSteps.Triangulate);
+            var scene = _assimp.ImportFile(path, (uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.FlipUVs 
+                                                 | (uint)PostProcessSteps.CalculateTangentSpace );
 
             if (scene == null || scene->MFlags == Silk.NET.Assimp.Assimp.SceneFlagsIncomplete || scene->MRootNode == null)
             {
@@ -173,8 +174,17 @@ namespace Tutorial
                 vertices.Add(vertex.Position.X);
                 vertices.Add(vertex.Position.Y);
                 vertices.Add(vertex.Position.Z);
+                vertices.Add(vertex.Normal.X);
+                vertices.Add(vertex.Normal.Y);
+                vertices.Add(vertex.Normal.Z);
                 vertices.Add(vertex.TexCoords.X);
                 vertices.Add(vertex.TexCoords.Y);
+                vertices.Add(vertex.Tangent.X);
+                vertices.Add(vertex.Tangent.Y);
+                vertices.Add(vertex.Tangent.Z);
+                vertices.Add(vertex.Bitangent.X);
+                vertices.Add(vertex.Bitangent.Y);
+                vertices.Add(vertex.Bitangent.Z);
             }
 
             return vertices.ToArray();
