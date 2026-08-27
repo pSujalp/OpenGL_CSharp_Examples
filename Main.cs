@@ -142,7 +142,7 @@ namespace Tutorial
             Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotationQuaternion);
             Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(translationVector);
             Matrix4x4 worldMatrix = scaleMatrix * rotationMatrix * translationMatrix;
-            Vector3 lightPos = new Vector3(4, 1.2f, 3);
+            Vector3 lightPos = new Vector3(0.5f, 1.0f, 0.3f);
             Vector3 viewPos = new Vector3(InverseView.M41, InverseView.M42, InverseView.M43);
 
 
