@@ -239,10 +239,8 @@ namespace Tutorial
                 mesh.Bind();
                 Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
-
             Gl.CullFace(TriangleFace.Back);
             Gl.BindFramebuffer(GLEnum.Framebuffer, 0);
-
             Gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
             Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
             Shader.Use();
