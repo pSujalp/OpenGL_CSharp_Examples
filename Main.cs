@@ -89,11 +89,12 @@ namespace Tutorial
 
         private static void Main(string[] args)
         {
-            var options = WindowOptions.Default;
+            var options = WindowOptions.Default ;
             options.Size = new Vector2D<int>(800, 600);
             options.Title = "LearnOpenGL with Silk.NET";
             options.PreferredDepthBufferBits = 24;
             options.PreferredStencilBufferBits = 8;
+            options.WindowState = WindowState.Fullscreen;
             options.API = new GraphicsAPI(
                 ContextAPI.OpenGL,
                 ContextProfile.Core,
@@ -127,6 +128,8 @@ namespace Tutorial
             Gl.DepthFunc(DepthFunction.Less);
             Gl.Enable(EnableCap.DepthTest);
             Gl.Enable(EnableCap.CullFace);
+
+            Gl.Enable(EnableCap.FramebufferSrgb);
 
 
 
@@ -241,6 +244,8 @@ namespace Tutorial
             }
             Gl.CullFace(TriangleFace.Back);
             Gl.BindFramebuffer(GLEnum.Framebuffer, 0);
+
+            
             Gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
             Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
             Shader.Use();
