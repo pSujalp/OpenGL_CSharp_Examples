@@ -31,8 +31,9 @@ namespace Tutorial
             EBO = new BufferObject<uint>(GL, Indices, BufferTargetARB.ElementArrayBuffer);
             VBO = new BufferObject<float>(GL, Vertices, BufferTargetARB.ArrayBuffer);
             VAO = new VertexArrayObject<float, uint>(GL, VBO, EBO);
-            VAO.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
-            VAO.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
+            VAO.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 8, 0);
+            VAO.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 8, 3);
+            VAO.VertexAttributePointer(2, 3, VertexAttribPointerType.Float, 8, 5);
         }
 
         public void Bind()
