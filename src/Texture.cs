@@ -24,12 +24,29 @@ namespace Tutorial
             Bind();
 
 
-            using (var stream = System.IO.File.OpenRead(path))
+            string substr = path.Substring(path.Length-3);
+
+            if (substr == ".hdr")
             {
+                using (var stream = System.IO.File.OpenRead(path)){
                 ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-                gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+                gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba32f, (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.Float, image.Data);}
+                SetParameters(TextureTarget.Texture2D);
+                
             }
-            SetParameters(TextureTarget.Texture2D);
+            else
+            {
+                using (var stream = System.IO.File.OpenRead(path)){
+                ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+                gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);}
+                SetParameters(TextureTarget.Texture2D);
+                
+            }
+
+            Console.WriteLine($"Hello {substr}",substr);
+
+
+            
         }
 
         public unsafe void CubeTexture(GL gl, string[] path, TextureType type = TextureType.None)
