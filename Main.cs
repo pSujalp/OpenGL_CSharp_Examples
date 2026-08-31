@@ -211,7 +211,6 @@ namespace Tutorial
 
             var cubeModel = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
 
-
             Vector3 planeScale = new Vector3(10.0f, 10.0f, 10.0f);
             Quaternion planeRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)(-Math.PI / 2));
             Vector3 planeTranslation = new Vector3(0.0f, -3.5f, 0.0f);
@@ -227,7 +226,6 @@ namespace Tutorial
 
 
             Gl.CullFace(TriangleFace.Front);
-
             DepthShader.SetUniform("model", cubeModel);
             foreach (var mesh in Model.Meshes)
             {
@@ -245,10 +243,8 @@ namespace Tutorial
             Gl.CullFace(TriangleFace.Back);
             Gl.BindFramebuffer(GLEnum.Framebuffer, 0);
 
-
             Gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
             Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
-
             Shader.Use();
             Shader.SetUniform("uView", view);
             Shader.SetUniform("uProjection", projection);
