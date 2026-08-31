@@ -256,7 +256,7 @@ namespace Tutorial
             Gl.ActiveTexture(TextureUnit.Texture1);
             Gl.BindTexture(TextureTarget.Texture2D, depthMap);
             Gl.ActiveTexture(TextureUnit.Texture0);
-            Texture.Bind();
+            Texture.Bind(); 
             Shader.SetUniform("uModel", cubeModel);
             foreach (var mesh in Model.Meshes)
             {
