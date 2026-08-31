@@ -162,7 +162,6 @@ namespace Tutorial
             }
             if (primaryKeyboard.IsKeyPressed(Key.A))
             {
-
                 Camera.CameraPosition -= Vector3.Normalize(Vector3.Cross(Camera.CameraFront, Camera.CameraUp)) * moveSpeed;
             }
             if (primaryKeyboard.IsKeyPressed(Key.D))
@@ -177,8 +176,6 @@ namespace Tutorial
 
             Gl.Clear((UInt16)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
-
-
             Vao.Bind();
             Texture.Bind();
             Shader.Use();
@@ -186,10 +183,6 @@ namespace Tutorial
             var difference = (float)(window.Time * 100);
 
             var size = window.FramebufferSize;
-
-
-
-
 
             var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
             var view = Matrix4x4.CreateLookAt(Camera.CameraPosition, Camera.CameraPosition + Camera.CameraFront, Camera.CameraUp);
