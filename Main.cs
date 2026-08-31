@@ -224,7 +224,7 @@ namespace Tutorial
             DepthShader.Use();
             DepthShader.SetUniform("lightSpaceMatrix", lightSpaceMatrix);
 
-
+            
             Gl.CullFace(TriangleFace.Front);
             DepthShader.SetUniform("model", cubeModel);
             foreach (var mesh in Model.Meshes)
