@@ -18,60 +18,12 @@ namespace Tutorial
         private static GL Gl;
 
 
-        private static BufferObject<float> Vbo;
-        private static VertexArrayObject<float, uint> Vao;
-
         public static Texture Texture;
         private static Shader Shader;
 
         private static Model Model;
 
-        private static readonly float[] Vertices =
-        {
-
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-        };
-
+    
 
 
         private static readonly uint[] Indices = { 0, 1, 2 };
@@ -123,26 +75,21 @@ namespace Tutorial
             Gl.Enable(EnableCap.DepthTest);
             Gl.Enable(EnableCap.CullFace);
 
-
-            Vbo = new BufferObject<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
-            Vao = new VertexArrayObject<float, uint>(Gl, Vbo);
-            Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
-            Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/newport_loft.hdr");
-            Model = new Model(Gl, "assets/cube.model");
+            Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
+            Model = new Model(Gl, "assets/backpack/backpack.obj");
 
 
-            string[] paths = {
-       ("assets/skybox/right.jpg"),
-       ("assets/skybox/left.jpg"),
-       ("assets/skybox/top.jpg"),
-       ("assets/skybox/bottom.jpg"),
-       ("assets/skybox/front.jpg"),
-       ("assets/skybox/back.jpg"),
-                             };
+    //         string[] paths = {
+    //    ("assets/skybox/right.jpg"),
+    //    ("assets/skybox/left.jpg"),
+    //    ("assets/skybox/top.jpg"),
+    //    ("assets/skybox/bottom.jpg"),
+    //    ("assets/skybox/front.jpg"),
+    //    ("assets/skybox/back.jpg"),
+    //                          };
 
-            skybox = new Skybox(paths, Gl);
+            skybox = new Skybox("assets/newport_loft.hdr", Gl);
 
         }
 
@@ -176,7 +123,7 @@ namespace Tutorial
 
             Gl.Clear((UInt16)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
-            Vao.Bind();
+            
             Texture.Bind();
             Shader.Use();
             Shader.SetUniform("uTexture0", 0);
@@ -215,7 +162,7 @@ namespace Tutorial
                 Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
 
-            skybox.Draw(gL:Gl,view,projection);
+            skybox.DrawEquirectangularMap(Gl, view, projection);
         }
 
 
@@ -226,8 +173,6 @@ namespace Tutorial
 
         private static void OnClose()
         {
-            Vbo.Dispose();
-            Vao.Dispose();
             Shader.Dispose();
             Texture.Dispose();
         }

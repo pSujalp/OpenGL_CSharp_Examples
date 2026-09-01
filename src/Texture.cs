@@ -2,6 +2,7 @@ using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using System;
 using StbImageSharp;
+using System.IO;
 
 namespace Tutorial
 {
@@ -15,57 +16,66 @@ namespace Tutorial
 
         public unsafe Texture(){}
 
-        public unsafe Texture(GL gl, string path, TextureType type = TextureType.None)
+    public unsafe Texture(GL gl, string path, TextureType type = TextureType.None, bool flip = false)
+{
+    _gl = gl;
+    Path = path;
+    Type = type;
+    _handle = _gl.GenTexture();
+    Bind();
+
+    string substr = path.Substring(path.Length - 3);
+
+    StbImage.stbi_set_flip_vertically_on_load(flip ? 1 : 0);
+
+    if (substr == ".hdr")
+    {
+        using (var stream = System.IO.File.OpenRead(path))
         {
-            _gl = gl;
-            Path = path;
-            Type = type;
-            _handle = _gl.GenTexture();
-            Bind();
-
-
-            string substr = path.Substring(path.Length-3);
-
-            if (substr == ".hdr")
-            {
-                using (var stream = System.IO.File.OpenRead(path)){
-                ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-                gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba32f, (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.Float, image.Data);}
-                SetParameters(TextureTarget.Texture2D); 
-            }
-            else
-            {
-                using (var stream = System.IO.File.OpenRead(path)){
-                ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-                gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);}
-                SetParameters(TextureTarget.Texture2D);
-                
-            }
-
-            Console.WriteLine($"Hello {substr}",substr);
-
-
-            
+            ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba32f,
+                (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.Float, image.Data);
         }
-
-        public unsafe void CubeTexture(GL gl, string[] path, TextureType type = TextureType.None)
+        SetParameters(TextureTarget.Texture2D);
+    }
+    else
+    {
+        using (var stream = System.IO.File.OpenRead(path))
         {
-            _gl = gl;
-            string[] Path = path;
-            Type = type;
-            _handle = _gl.GenTexture();
-            Bind();
-
-            for (int i = 0; i < Path.Length; i++)
-            {
-                using (var stream = System.IO.File.OpenRead(Path[i]))
-                {
-                    ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-                    gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, InternalFormat.Rgba8, (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
-                }
-            }
-            SetParameters(TextureTarget.TextureCubeMap);
+            ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8,
+                (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
         }
+        SetParameters(TextureTarget.Texture2D);
+    }
+
+    // Always reset to a known default so nothing downstream inherits this call's setting
+    StbImage.stbi_set_flip_vertically_on_load(0);
+}
+
+public unsafe void CubeTexture(GL gl, string[] path, TextureType type = TextureType.None)
+{
+    _gl = gl;
+    Type = type;
+    _handle = _gl.GenTexture();
+    Bind();
+
+    // Cubemaps should (almost) never be flipped — set this explicitly, don't inherit state
+    StbImage.stbi_set_flip_vertically_on_load(0);
+
+    for (int i = 0; i < path.Length; i++)
+    {
+        using (var stream = System.IO.File.OpenRead(path[i]))
+        {
+            ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, InternalFormat.Rgba8,
+                (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+        }
+    }
+    SetParameters(TextureTarget.TextureCubeMap);
+
+    StbImage.stbi_set_flip_vertically_on_load(0);
+}
 
         public unsafe Texture(GL gl, Span<byte> data, uint width, uint height)
         {
@@ -92,14 +102,17 @@ namespace Tutorial
             if (target == TextureTarget.TextureCubeMap)
             {
                 _gl.TexParameter(target, TextureParameterName.TextureWrapR, (int)GLEnum.ClampToEdge);
+                _gl.GenerateMipmap(target);_gl.BindTexture(target, 0);
             }
             _gl.GenerateMipmap(target);
+            _gl.BindTexture(target, 0);
         }
 
         public void Bind(TextureUnit textureSlot = TextureUnit.Texture0)
         {
             _gl.ActiveTexture(textureSlot);
             _gl.BindTexture(TextureTarget.Texture2D, _handle);
+            
         }
 
         public void BindCubeMap(TextureUnit textureSlot = TextureUnit.Texture0)

@@ -4,6 +4,10 @@ using Silk.NET.Windowing;
 using System.Numerics;
 using Silk.NET.Maths;
 using Tutorial;
+using StbImageSharp;
+using System.IO;
+using Silk.NET.Assimp;
+
 
 class Skybox
 {
@@ -54,6 +58,7 @@ class Skybox
 
     private BufferObject<float> Vbo;
     private VertexArrayObject<float, uint> Vao;
+
     public Tutorial.Texture Texture;
 
     public Tutorial.Shader shader;
@@ -73,6 +78,18 @@ class Skybox
 
     }
 
+    public Skybox(string path, GL gL)
+    {
+        Texture = new Tutorial.Texture(gL,path,TextureType.None,true);
+        Vbo = new BufferObject<float>(gL, SkyboxVertices, BufferTargetARB.ArrayBuffer);
+        Vao = new VertexArrayObject<float, uint>(gL, Vbo);
+        Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 3, 0);
+        shader = new Tutorial.Shader(gl: gL, vertexPath:"shaders/skybox.vert",fragmentPath:"shaders/skybox_equiM.frag");
+        shader.Use();
+        shader.SetUniform("skybox",0);
+
+    }
+
     public void Draw(GL gL,Matrix4x4 view , Matrix4x4 proj)
     {
         gL.DepthFunc(DepthFunction.Lequal);
@@ -84,7 +101,25 @@ class Skybox
 
         shader.SetUniform("view",view);
         shader.SetUniform("projection",proj);
-        gL.DrawArrays(PrimitiveType.Triangles, 0, (uint)SkyboxVertices.Length);
+        gL.DrawArrays(Silk.NET.OpenGL.PrimitiveType.Triangles, 0, (uint)SkyboxVertices.Length);
+
+        
+        gL.BindVertexArray(0);
+        gL.DepthFunc(DepthFunction.Less);
+    }
+
+     public void DrawEquirectangularMap(GL gL, Matrix4x4 view , Matrix4x4 proj)
+    {
+        gL.DepthFunc(DepthFunction.Lequal);
+        Vao.Bind();
+        shader.Use();
+        Texture.Bind(TextureUnit.Texture0);
+        shader.SetUniform("skybox", 0);
+
+
+        shader.SetUniform("view",view);
+        shader.SetUniform("projection",proj);
+        gL.DrawArrays(Silk.NET.OpenGL.PrimitiveType.Triangles, 0, (uint)SkyboxVertices.Length);
 
         
         gL.BindVertexArray(0);
