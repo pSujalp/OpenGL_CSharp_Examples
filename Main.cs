@@ -33,6 +33,14 @@ namespace Tutorial
 
         public static Skybox skybox;
 
+        public static List<Vector3> lightPositions = new List<Vector3>
+        {
+            new Vector3(0.0f,  1.0f, 0.0f),
+            new Vector3( 0.0f,  -1.0f, 0.0f),
+            new Vector3(0.0f,  1.0f/2, 1.0f),
+            new Vector3( 1.0f,  1.0f/2, 0.0f)
+        };
+
 
         private static void Main(string[] args)
         {
@@ -71,14 +79,26 @@ namespace Tutorial
             }
 
             Gl = GL.GetApi(window);
+            Gl.ClearColor(0.1f, 0.1f, 0.12f, 1.0f);
             Gl.DepthFunc(DepthFunction.Less);
             Gl.Enable(EnableCap.DepthTest);
-            Gl.Enable(EnableCap.CullFace);
+            Gl.Disable(EnableCap.CullFace);
 
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
             Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
             Model = new Model(Gl, "assets/backpack/backpack.obj");
-            skybox = new Skybox("assets/newport_loft.hdr", Gl);
+
+
+            string[] faces =
+            {
+                "assets/skybox/right.jpg",
+                "assets/skybox/left.jpg",
+                "assets/skybox/top.jpg",
+                "assets/skybox/bottom.jpg",
+                "assets/skybox/front.jpg",
+                "assets/skybox/back.jpg"
+            };
+            skybox = new Skybox(faces, Gl);
         }
         private static unsafe void OnUpdate(double deltaTime)
         {
@@ -134,28 +154,44 @@ namespace Tutorial
             Shader.SetUniform("uModel", worldMatrix);
             Shader.SetUniform("uView", view);
             Shader.SetUniform("uProjection", projection);
-            
-                        
+
+
             foreach (var mesh in Model.Meshes)
             {
                 mesh.Bind();
                 Shader.Use();
                 Texture.Bind();
+                
                 Shader.SetUniform("uTexture0", 0);
+                
                 Shader.SetUniform("uModel", worldMatrix);
                 Shader.SetUniform("uView", view);
                 Shader.SetUniform("uProjection", projection);
+                
+                
 
-                Matrix4x4 normalMatrix = worldMatrix;
-                bool b = Matrix4x4.Invert(normalMatrix, out normalMatrix);
-                normalMatrix = Matrix4x4.Transpose(normalMatrix);
-                Shader.SetUniform("uNormalMatrix", normalMatrix);
+                skybox.Texture.BindCubeMap(TextureUnit.Texture1);
+                Shader.SetUniform("equiRecMap", 1);
+                Shader.SetUniform("camPos", Camera.CameraPosition);
+
+
+                for(int i = 0; i < lightPositions.Count; i++)
+                {
+                    Shader.SetUniform($"lightPositions[{i}]", lightPositions[i]);
+                    Shader.SetUniform($"lightColors[{i}]", new Vector3(1.0f, 1.0f, 1.0f));
+                }
+                
+
+                Shader.SetUniform("albedo", new Vector3(1.0f, 1.0f, 0.0f));
+                Shader.SetUniform("metallic", 0.75f);
+                Shader.SetUniform("roughness", 0.1f);
+                Shader.SetUniform("ao", 1.0f);
                 
         
                 Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
 
-            skybox.DrawEquirectangularMap(Gl, view, projection);
+            skybox.Draw(Gl, view, projection);
         }
 
 
