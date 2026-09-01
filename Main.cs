@@ -93,13 +93,13 @@ namespace Tutorial
             Gl.Disable(EnableCap.CullFace);
 
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/car/default_Base_Color.png", Silk.NET.Assimp.TextureType.None, true);
-            NorTexture = new Texture(Gl, "assets/car/default_Normal_DirectX.png", Silk.NET.Assimp.TextureType.None, true);
-            RoughTexture = new Texture(Gl, "assets/car/default_Roughness.png", Silk.NET.Assimp.TextureType.None, true);
-            EmissiveTexture = new Texture(Gl, "assets/car/default_Roughness.png", Silk.NET.Assimp.TextureType.None, true);
-            AOTexture = new Texture(Gl, "assets/car/car_low_default_AmbientOcclusion.png", Silk.NET.Assimp.TextureType.None, true);
-            Model = new Model(Gl, "assets/car/car_low.fbx");
-            MetallicTexture = new Texture(Gl, "assets/car/default_Metallic.png", Silk.NET.Assimp.TextureType.None, true);
+            Texture = new Texture(Gl, "assets/gun/Cerberus_by_Andrew_Maximov 2/Textures/Cerberus_A.tga", Silk.NET.Assimp.TextureType.None, true);
+            NorTexture = new Texture(Gl, "assets/gun/Cerberus_by_Andrew_Maximov 2/Textures/Cerberus_N.tga", Silk.NET.Assimp.TextureType.None, true);
+            RoughTexture = new Texture(Gl, "assets/gun/Cerberus_by_Andrew_Maximov 2/Textures/Cerberus_R.tga", Silk.NET.Assimp.TextureType.None, true);
+            EmissiveTexture = new Texture(Gl, "assets/gun/Cerberus_by_Andrew_Maximov 2/Textures/Cerberus_R.tga", Silk.NET.Assimp.TextureType.None, true);
+            AOTexture = new Texture(Gl, "assets/gun/Cerberus_by_Andrew_Maximov 2/Textures/Raw/Cerberus_AO.tga", Silk.NET.Assimp.TextureType.None, true);
+            Model = new Model(Gl, "assets/gun/Cerberus_by_Andrew_Maximov 2/Cerberus_LP.FBX");
+            MetallicTexture = new Texture(Gl, "assets/gun/Cerberus_by_Andrew_Maximov 2/Textures/Cerberus_M.tga", Silk.NET.Assimp.TextureType.None, true);
 
 
             string[] faces =
@@ -150,7 +150,7 @@ namespace Tutorial
             var difference = (float)(window.Time * 100);
 
             var size = window.FramebufferSize;
-            var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
+            var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(90));
             var view = Matrix4x4.CreateLookAt(Camera.CameraPosition, Camera.CameraPosition + Camera.CameraFront, Camera.CameraUp);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 3000.0f);
 
@@ -158,7 +158,7 @@ namespace Tutorial
 
 
             mat4 worldMatrix = mat4.Identity;
-            worldMatrix = worldMatrix * mat4.RotateX(MathHelper.DegreesToRadians(difference));
+            worldMatrix = worldMatrix * mat4.RotateX(MathHelper.DegreesToRadians(-90));
 
             worldMatrix = worldMatrix * mat4.Scale(0.01f, 0.01f, 0.01f);
 
