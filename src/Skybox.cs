@@ -64,6 +64,7 @@ class Skybox
     public Tutorial.Shader shader;
 
 
+
     public Skybox(string[] path, GL gL)
     {
         Texture = new Tutorial.Texture();

@@ -134,8 +134,8 @@ namespace Tutorial
             Shader.SetUniform("uModel", worldMatrix);
             Shader.SetUniform("uView", view);
             Shader.SetUniform("uProjection", projection);
-
             
+                        
             foreach (var mesh in Model.Meshes)
             {
                 mesh.Bind();
