@@ -77,6 +77,26 @@ public unsafe void CubeTexture(GL gl, string[] path, TextureType type = TextureT
     StbImage.stbi_set_flip_vertically_on_load(0);
 }
 
+public unsafe void CubeTexture(GL gl, string path, TextureType type = TextureType.None)
+{
+    _gl = gl;
+    Type = type;
+    _handle = _gl.GenTexture();
+    Bind();
+
+    // Cubemaps should (almost) never be flipped — set this explicitly, don't inherit state
+    StbImage.stbi_set_flip_vertically_on_load(0);
+        using (var stream = System.IO.File.OpenRead(path))
+        {
+            ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8,
+                (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+        }
+    SetParameters(TextureTarget.TextureCubeMap);
+
+    StbImage.stbi_set_flip_vertically_on_load(0);
+}
+
         public unsafe Texture(GL gl, Span<byte> data, uint width, uint height)
         {
             _gl = gl;

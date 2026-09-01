@@ -78,17 +78,6 @@ namespace Tutorial
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
             Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
             Model = new Model(Gl, "assets/backpack/backpack.obj");
-
-
-    //         string[] paths = {
-    //    ("assets/skybox/right.jpg"),
-    //    ("assets/skybox/left.jpg"),
-    //    ("assets/skybox/top.jpg"),
-    //    ("assets/skybox/bottom.jpg"),
-    //    ("assets/skybox/front.jpg"),
-    //    ("assets/skybox/back.jpg"),
-    //                          };
-
             skybox = new Skybox("assets/newport_loft.hdr", Gl);
 
         }
@@ -149,7 +138,7 @@ namespace Tutorial
             Shader.SetUniform("uView", view);
             Shader.SetUniform("uProjection", projection);
 
-
+            
             foreach (var mesh in Model.Meshes)
             {
                 mesh.Bind();
