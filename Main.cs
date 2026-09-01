@@ -93,13 +93,13 @@ namespace Tutorial
             Gl.Disable(EnableCap.CullFace);
 
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/backpack/diffuse.jpg", Silk.NET.Assimp.TextureType.None,false);
-            NorTexture = new Texture(Gl, "assets/backpack/normal.png");
-            RoughTexture = new Texture(Gl, "assets/backpack/roughness.jpg");
-            EmissiveTexture = new Texture(Gl, "assets/backpack/specular.jpg");
-            AOTexture = new Texture(Gl, "assets/backpack/ao.jpg");
-            Model = new Model(Gl, "assets/backpack/backpack.obj");
-            MetallicTexture = new Texture(Gl, "assets/backpack/roughness.jpg");
+            Texture = new Texture(Gl, "assets/car/default_Base_Color.png", Silk.NET.Assimp.TextureType.None, true);
+            NorTexture = new Texture(Gl, "assets/car/default_Normal_DirectX.png", Silk.NET.Assimp.TextureType.None, true);
+            RoughTexture = new Texture(Gl, "assets/car/default_Roughness.png", Silk.NET.Assimp.TextureType.None, true);
+            EmissiveTexture = new Texture(Gl, "assets/car/default_Roughness.png", Silk.NET.Assimp.TextureType.None, true);
+            AOTexture = new Texture(Gl, "assets/car/car_low_default_AmbientOcclusion.png", Silk.NET.Assimp.TextureType.None, true);
+            Model = new Model(Gl, "assets/car/car_low.fbx");
+            MetallicTexture = new Texture(Gl, "assets/car/default_Metallic.png", Silk.NET.Assimp.TextureType.None, true);
 
 
             string[] faces =
@@ -158,7 +158,9 @@ namespace Tutorial
 
 
             mat4 worldMatrix = mat4.Identity;
-            
+            worldMatrix = worldMatrix * mat4.RotateX(MathHelper.DegreesToRadians(difference));
+
+            worldMatrix = worldMatrix * mat4.Scale(0.01f, 0.01f, 0.01f);
 
             mat4 viewMatrix = Camera.GetViewMatrix();
             mat4 projectionMatrix = mat4.Perspective(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 3000.0f);
