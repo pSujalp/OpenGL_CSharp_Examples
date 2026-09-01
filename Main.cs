@@ -79,9 +79,7 @@ namespace Tutorial
             Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
             Model = new Model(Gl, "assets/backpack/backpack.obj");
             skybox = new Skybox("assets/newport_loft.hdr", Gl);
-
         }
-
         private static unsafe void OnUpdate(double deltaTime)
         {
             var moveSpeed = 2.5f * (float)deltaTime;
@@ -119,7 +117,6 @@ namespace Tutorial
             var difference = (float)(window.Time * 100);
 
             var size = window.FramebufferSize;
-
             var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
             var view = Matrix4x4.CreateLookAt(Camera.CameraPosition, Camera.CameraPosition + Camera.CameraFront, Camera.CameraUp);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 3000.0f);
@@ -148,6 +145,13 @@ namespace Tutorial
                 Shader.SetUniform("uModel", worldMatrix);
                 Shader.SetUniform("uView", view);
                 Shader.SetUniform("uProjection", projection);
+
+                Matrix4x4 normalMatrix = worldMatrix;
+                bool b = Matrix4x4.Invert(normalMatrix, out normalMatrix);
+                normalMatrix = Matrix4x4.Transpose(normalMatrix);
+                Shader.SetUniform("uNormalMatrix", normalMatrix);
+                
+        
                 Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);
             }
 
