@@ -7,42 +7,21 @@ in vec3 WorldPos;
 
 uniform sampler2D uTexture0;
 uniform samplerCube equiRecMap;
+uniform sampler2D uNormalMap;
+uniform sampler2D uRoughnessMap;
+uniform sampler2D uEmissiveMap;
+uniform sampler2D uAOMap;
+uniform sampler2D uMetallicMap;
+
 uniform vec3 camPos;
 
-// material parameters
-uniform vec3 albedo;
-uniform float metallic;
-uniform float roughness;
-uniform float ao;
+
 
 // lights
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
-
 const float PI = 3.14159265359;
 
-vec2 mycubemap(vec3 t3)
-{
-    vec2 t2;
-    t3 = normalize(t3) / sqrt(2.0);
-    vec3 q3 = abs(t3);
-    if ((q3.x >= q3.y) && (q3.x >= q3.z))
-    {
-        t2.x = 0.5 - t3.z / t3.x;
-        t2.y = 0.5 - t3.y / q3.x;
-    }
-    else if ((q3.y >= q3.x) && (q3.y >= q3.z))
-    {
-        t2.x = 0.5 + t3.x / q3.y;
-        t2.y = 0.5 + t3.z / t3.y;
-    }
-    else
-    {
-        t2.x = 0.5 + t3.x / t3.z;
-        t2.y = 0.5 - t3.y / q3.z;
-    }
-    return t2;
-}
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -84,11 +63,18 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+
 void main()
 {
     vec3 N = normalize(Normal);
     vec3 V = normalize(camPos - WorldPos);
     vec3 R = reflect(-V, N);
+
+    
+    vec3 albedo     = texture(uTexture0, fUv).rgb;
+    float roughness = texture(uRoughnessMap, fUv).r;
+    float metallic  = texture(uMetallicMap, fUv).r;
+    float ao        = texture(uAOMap, fUv).r;
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -119,18 +105,17 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
-    // ambient (IBL) - sampling equiRecMap directly via the direction->UV projection
+    // ambient (IBL) - unchanged, still sampling equiRecMap by direction
     vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
 
-    vec3 irradiance = texture(equiRecMap, N).rgb;
+    vec3 irradiance = texture(equiRecMap, N).rgb + texture(uEmissiveMap, fUv).rgb * 30.0f;
     vec3 diffuse    = irradiance * albedo;
     vec3 ambient    = (kD * diffuse) * ao;
 
     vec3 color = ambient + Lo;
 
-    // HDR tonemap + gamma correct
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
 

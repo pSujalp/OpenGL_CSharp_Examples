@@ -19,6 +19,14 @@ namespace Tutorial
 
 
         public static Texture Texture;
+
+        public static Texture NorTexture;
+        public static Texture RoughTexture;
+
+        public static Texture EmissiveTexture;
+
+        public static Texture MetallicTexture;
+        public static Texture AOTexture;
         private static Shader Shader;
 
         private static Model Model;
@@ -37,8 +45,8 @@ namespace Tutorial
         {
             new Vector3(0.0f,  1.0f, 0.0f),
             new Vector3( 0.0f,  -1.0f, 0.0f),
-            new Vector3(0.0f,  1.0f/2, 1.0f),
-            new Vector3( 1.0f,  1.0f/2, 0.0f)
+            new Vector3(0.0f,  1.0f, 2.0f),
+            new Vector3( 2.0f,  1.0f, 0.0f)
         };
 
 
@@ -85,8 +93,13 @@ namespace Tutorial
             Gl.Disable(EnableCap.CullFace);
 
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/backpack/diffuse.jpg");
-            Model = new Model(Gl, "assets/backpack/backpack.obj");
+            Texture = new Texture(Gl, "assets/DamagedHelmet/Material_MR.png", Silk.NET.Assimp.TextureType.None,false);
+            NorTexture = new Texture(Gl, "assets/DamagedHelmet/normalMap1.png");
+            RoughTexture = new Texture(Gl, "assets/DamagedHelmet/Default_metalRoughness.jpg");
+            EmissiveTexture = new Texture(Gl, "assets/DamagedHelmet/emissiveMap1.png");
+            AOTexture = new Texture(Gl, "assets/DamagedHelmet/ambientMap1.png");
+            Model = new Model(Gl, "assets/DamagedHelmet/DamagedHelmet.obj");
+            MetallicTexture = new Texture(Gl, "assets/DamagedHelmet/metalnessMap1.png");
 
 
             string[] faces =
@@ -160,9 +173,7 @@ namespace Tutorial
             {
                 mesh.Bind();
                 Shader.Use();
-                Texture.Bind();
                 
-                Shader.SetUniform("uTexture0", 0);
                 
                 Shader.SetUniform("uModel", worldMatrix);
                 Shader.SetUniform("uView", view);
@@ -170,8 +181,7 @@ namespace Tutorial
                 
                 
 
-                skybox.Texture.BindCubeMap(TextureUnit.Texture1);
-                Shader.SetUniform("equiRecMap", 1);
+                
                 Shader.SetUniform("camPos", Camera.CameraPosition);
 
 
@@ -180,12 +190,25 @@ namespace Tutorial
                     Shader.SetUniform($"lightPositions[{i}]", lightPositions[i]);
                     Shader.SetUniform($"lightColors[{i}]", new Vector3(1.0f, 1.0f, 1.0f));
                 }
-                
 
-                Shader.SetUniform("albedo", new Vector3(1.0f, 1.0f, 0.0f));
-                Shader.SetUniform("metallic", 0.75f);
-                Shader.SetUniform("roughness", 0.1f);
-                Shader.SetUniform("ao", 1.0f);
+                Texture.Bind();
+                Shader.SetUniform("uTexture0", 0);
+
+                skybox.Texture.BindCubeMap(TextureUnit.Texture1);
+                Shader.SetUniform("equiRecMap", 1);
+
+                NorTexture.Bind(TextureUnit.Texture2);
+                Shader.SetUniform("uNormalMap", 2);
+                RoughTexture.Bind(TextureUnit.Texture3);
+                Shader.SetUniform("uRoughnessMap", 3);
+                EmissiveTexture.Bind(TextureUnit.Texture4);
+                Shader.SetUniform("uEmissiveMap", 4);
+                AOTexture.Bind(TextureUnit.Texture5);
+                Shader.SetUniform("uAOMap", 5);
+                MetallicTexture.Bind(TextureUnit.Texture6);
+                Shader.SetUniform("uMetallicMap", 6);
+
+                
                 
         
                 Gl.DrawElements(PrimitiveType.Triangles, (UInt32)mesh.Indices.Length, DrawElementsType.UnsignedInt, null);

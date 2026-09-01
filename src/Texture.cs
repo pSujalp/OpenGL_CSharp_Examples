@@ -43,8 +43,8 @@ namespace Tutorial
         using (var stream = System.IO.File.OpenRead(path))
         {
             ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8,
-                (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Srgb8Alpha8,
+    (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
         }
         SetParameters(TextureTarget.Texture2D);
     }
@@ -89,8 +89,7 @@ public unsafe void CubeTexture(GL gl, string path, TextureType type = TextureTyp
         using (var stream = System.IO.File.OpenRead(path))
         {
             ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8,
-                (uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+            gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Srgb8Alpha8,(uint)image.Width, (uint)image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
         }
     SetParameters(TextureTarget.TextureCubeMap);
 
