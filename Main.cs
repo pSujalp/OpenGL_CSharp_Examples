@@ -93,13 +93,13 @@ namespace Tutorial
             Gl.Disable(EnableCap.CullFace);
 
             Shader = new Shader(Gl, "shaders/shader.vert", "shaders/shader.frag");
-            Texture = new Texture(Gl, "assets/DamagedHelmet/Material_MR.png", Silk.NET.Assimp.TextureType.None,false);
-            NorTexture = new Texture(Gl, "assets/DamagedHelmet/normalMap1.png");
-            RoughTexture = new Texture(Gl, "assets/DamagedHelmet/Default_metalRoughness.jpg");
-            EmissiveTexture = new Texture(Gl, "assets/DamagedHelmet/emissiveMap1.png");
-            AOTexture = new Texture(Gl, "assets/DamagedHelmet/ambientMap1.png");
-            Model = new Model(Gl, "assets/DamagedHelmet/DamagedHelmet.obj");
-            MetallicTexture = new Texture(Gl, "assets/DamagedHelmet/metalnessMap1.png");
+            Texture = new Texture(Gl, "assets/backpack/diffuse.jpg", Silk.NET.Assimp.TextureType.None,false);
+            NorTexture = new Texture(Gl, "assets/backpack/normal.png");
+            RoughTexture = new Texture(Gl, "assets/backpack/roughness.jpg");
+            EmissiveTexture = new Texture(Gl, "assets/backpack/specular.jpg");
+            AOTexture = new Texture(Gl, "assets/backpack/ao.jpg");
+            Model = new Model(Gl, "assets/backpack/backpack.obj");
+            MetallicTexture = new Texture(Gl, "assets/backpack/roughness.jpg");
 
 
             string[] faces =

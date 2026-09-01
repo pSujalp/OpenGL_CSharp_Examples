@@ -105,13 +105,13 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
-    // ambient (IBL) - unchanged, still sampling equiRecMap by direction
+    
     vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
 
-    vec3 irradiance = texture(equiRecMap, N).rgb + texture(uEmissiveMap, fUv).rgb * 30.0f;
-    vec3 diffuse    = irradiance * albedo;
+    vec3 irradiance =  texture(uEmissiveMap, fUv).rgb * 30.0f;
+    vec3 diffuse    = albedo;
     vec3 ambient    = (kD * diffuse) * ao;
 
     vec3 color = ambient + Lo;
