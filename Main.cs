@@ -154,19 +154,20 @@ namespace Tutorial
             var view = Matrix4x4.CreateLookAt(Camera.CameraPosition, Camera.CameraPosition + Camera.CameraFront, Camera.CameraUp);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 3000.0f);
 
-            Vector3 scaleVector = new Vector3(1.0f, 1.0f, 1.0f);
-            Quaternion rotationQuaternion = Quaternion.Identity;
-            Vector3 translationVector = new Vector3(0.0f, 0.0f, 0.0f);
+            
 
-            Matrix4x4 scaleMatrix = Matrix4x4.CreateScale(scaleVector);
-            Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotationQuaternion);
-            Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(translationVector);
-            Matrix4x4 worldMatrix = scaleMatrix * rotationMatrix * translationMatrix;
+
+            mat4 worldMatrix = mat4.Identity;
+            
+
+            mat4 viewMatrix = Camera.GetViewMatrix();
+            mat4 projectionMatrix = mat4.Perspective(MathHelper.DegreesToRadians(Camera.CameraZoom), (float)size.X / size.Y, 0.1f, 3000.0f);
+
 
 
             Shader.SetUniform("uModel", worldMatrix);
-            Shader.SetUniform("uView", view);
-            Shader.SetUniform("uProjection", projection);
+            Shader.SetUniform("uView", viewMatrix);
+            Shader.SetUniform("uProjection", projectionMatrix);
 
 
             foreach (var mesh in Model.Meshes)
@@ -176,8 +177,8 @@ namespace Tutorial
                 
                 
                 Shader.SetUniform("uModel", worldMatrix);
-                Shader.SetUniform("uView", view);
-                Shader.SetUniform("uProjection", projection);
+                Shader.SetUniform("uView", viewMatrix);
+                Shader.SetUniform("uProjection", projectionMatrix);
                 
                 
 

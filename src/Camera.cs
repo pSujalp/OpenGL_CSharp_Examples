@@ -5,7 +5,7 @@ using System.Numerics;
 using Silk.NET.Maths;
 using Tutorial;
 
-
+using GlmSharp;
 
 
 
@@ -68,9 +68,12 @@ namespace FreeCam
             CameraZoom = Math.Clamp(CameraZoom - scrollWheel.Y, 1.0f, 45f);
         }
 
-
-        
-
+        public static unsafe mat4 GetViewMatrix()
+        {
+            return mat4.LookAt(new vec3(CameraPosition.X, CameraPosition.Y, CameraPosition.Z), 
+            new vec3(CameraPosition.X, CameraPosition.Y, CameraPosition.Z) + 
+            new vec3(CameraFront.X, CameraFront.Y, CameraFront.Z), new vec3(CameraUp.X, CameraUp.Y, CameraUp.Z));
+        }
 
     }
 

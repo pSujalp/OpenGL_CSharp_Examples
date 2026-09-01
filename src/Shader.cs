@@ -37,24 +37,6 @@ namespace Tutorial
             _gl.UseProgram(_handle);
         }
 
-        public unsafe void SetUniformMat3(string name, Matrix4x4 value)
-        {
-            int location = _gl.GetUniformLocation(_handle, name);
-            if (location == -1) return;
-
-            float[] mat3 = new float[9]
-            {
-        value.M11, value.M12, value.M13,
-        value.M21, value.M22, value.M23,
-        value.M31, value.M32, value.M33
-            };
-
-            fixed (float* ptr = mat3)
-            {
-                _gl.UniformMatrix3(location, 1, false, ptr);
-            }
-        }
-
         public void SetUniform(string name, int value)
         {
             int location = _gl.GetUniformLocation(_handle, name);
@@ -73,6 +55,7 @@ namespace Tutorial
             }
             _gl.Uniform3(location, value);
         }
+
         public unsafe void SetUniform(string name, Matrix4x4 value)
         {
             //A new overload has been created for setting a uniform so we can use the transform in our shader.
@@ -81,9 +64,18 @@ namespace Tutorial
             {
                 return;
             }
-            _gl.UniformMatrix4(location, 1, false, (float*)&value);
+            _gl.UniformMatrix4(location, 1, false, (float*) &value);
         }
-
+        public unsafe void SetUniform(string name, mat4 value)
+        {
+            //A new overload has been created for setting a uniform so we can use the transform in our shader.
+            int location = _gl.GetUniformLocation(_handle, name);
+            if (location == -1)
+            {
+                return;
+            }
+            _gl.UniformMatrix4(location, 1, false, (float*) &value);
+        }
 
         public void SetUniform(string name, float value)
         {
@@ -106,13 +98,10 @@ namespace Tutorial
             uint handle = _gl.CreateShader(type);
             _gl.ShaderSource(handle, src);
             _gl.CompileShader(handle);
-
-            _gl.GetShader(handle, ShaderParameterName.CompileStatus, out int status);
-            if (status == 0)
+            string infoLog = _gl.GetShaderInfoLog(handle);
+            if (!string.IsNullOrWhiteSpace(infoLog))
             {
-                string infoLog = _gl.GetShaderInfoLog(handle);
-                _gl.DeleteShader(handle); // don't leak the failed shader object
-                throw new Exception($"Error compiling shader of type {type}, failed with error: {infoLog}");
+                throw new Exception($"Error compiling shader of type {type}, failed with error {infoLog}");
             }
 
             return handle;
